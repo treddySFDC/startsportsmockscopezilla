@@ -1,0 +1,21 @@
+# --- Scopezilla: regenerable artifacts (rebuilt by the engine; don't version) ---
+# Managed by the `collaborate` skill. Edit above/below the markers, not inside.
+data/csv/
+**/.search-index.json
+**/.toc.md
+.discovery-context.md
+outputs/scoping-deliverables.xlsx
+outputs/scoping-deliverables.zip
+# SFDX prototype (decisions/0019): commit the source (force-app/, sfdx-project.json,
+# .forceignore, manifest/) — that IS the record. Ignore only machine-local state
+# and the org auth cache, which is secret-bearing and must never reach a shared repo.
+.sf/
+.sfdx/
+.localdevserver/
+# Backup snapshots any tool (editor, migration, the user) may leave. The
+# persona refresh no longer writes these — it rewrites only its marker-delimited
+# block in place — but ignore them defensively so none ever reach a shared repo.
+*.bak
+*.bak-*
+.DS_Store
+# --- end Scopezilla ---
