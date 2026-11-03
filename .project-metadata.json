@@ -9,10 +9,10 @@
   "completion_status": {
     "setup": "not-started",
     "tutorial": "not-started",
-    "discover": "not-started",
+    "discover": "complete",
     "strategy": "not-started",
-    "requirements": "not-started",
-    "design": "not-started",
+    "requirements": "complete",
+    "design": "complete",
     "roadmap": "not-started",
     "efficiency": "not-started",
     "estimate": "not-started",
@@ -35,7 +35,7 @@
     "user_commitment": null
   },
   "salesforce_link": {
-    "status": "deferred",
+    "status": "declined",
     "opportunity_id": null,
     "opportunity_url": null,
     "licensing_opportunity_id": null,

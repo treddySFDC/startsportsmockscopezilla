@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StartSports Match Operations — Project Summary</title>
+<style>
+  :root {
+    --surface-1:      #fcfcfb;
+    --surface-2:      #f9f9f7;
+    --surface-3:      #f0efec;
+    --text-primary:   #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted:     #898781;
+    --border:         #e1e0d9;
+    --baseline:       #c3c2b7;
+    --series-1:       #2a78d6;
+    --series-2:       #eb6834;
+    --series-3:       #1baf7a;
+    --series-4:       #eda100;
+    --series-5:       #e87ba4;
+    --series-7:       #6250d6;
+    --status-good:    #0ca30c;
+    --status-warn:    #fab219;
+    --status-serious: #ec835a;
+    --status-crit:    #d03b3b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      --surface-1:    #1a1a19;
+      --surface-2:    #0d0d0d;
+      --surface-3:    #2c2c2a;
+      --text-primary: #f0efec;
+      --text-secondary:#c3c2b7;
+      --text-muted:   #898781;
+      --border:       #2c2c2a;
+      --baseline:     #383835;
+      --series-1:     #3987e5;
+      --series-2:     #d95926;
+      --series-3:     #199e70;
+      --series-4:     #c98500;
+      --series-5:     #d55181;
+      --series-7:     #9085e9;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: var(--surface-2);
+    color: var(--text-primary);
+    font-size: 15px;
+    line-height: 1.5;
+    padding: 32px 24px 64px;
+  }
+  .page { max-width: 960px; margin: 0 auto; }
+  .page-header { margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+  .page-header h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  .page-header p { font-size: 14px; color: var(--text-secondary); }
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 99px; font-size: 12px; font-weight: 600; margin-left: 6px; vertical-align: middle; }
+  .badge-done { background: color-mix(in srgb, var(--status-good) 12%, transparent); color: var(--status-good); }
+  .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 36px; }
+  .stat-tile { background: var(--surface-1); border: 1px solid var(--border); border-radius: 8px; padding: 18px 16px; }
+  .stat-tile .value { font-size: 32px; font-weight: 700; line-height: 1; margin-bottom: 4px; }
+  .stat-tile .label { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+  .stat-tile.blue   .value { color: var(--series-1); }
+  .stat-tile.orange .value { color: var(--series-2); }
+  .stat-tile.green  .value { color: var(--series-3); }
+  .stat-tile.violet .value { color: var(--series-7); }
+  .stat-tile.good   .value { color: var(--status-good); }
+  .stat-tile.warn   .value { color: var(--status-warn); }
+  .section { margin-bottom: 36px; }
+  .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+  .phase-pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 99px; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+  .phase-1   { background: color-mix(in srgb, var(--series-1) 15%, transparent); color: var(--series-1); }
+  .phase-2   { background: color-mix(in srgb, var(--series-7) 15%, transparent); color: var(--series-7); }
+  .phase-3   { background: color-mix(in srgb, var(--series-2) 15%, transparent); color: var(--series-2); }
+  .phase-next{ background: color-mix(in srgb, var(--text-muted) 15%, transparent); color: var(--text-muted); }
+  .section-title { font-size: 17px; font-weight: 700; }
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+  .card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 8px; padding: 18px; }
+  .card h3 { font-size: 13px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
+  .card ul { list-style: none; padding: 0; }
+  .card ul li { font-size: 14px; color: var(--text-primary); padding: 5px 0; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 8px; }
+  .card ul li:last-child { border-bottom: none; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 6px; }
+  .dot-blue   { background: var(--series-1); }
+  .dot-orange { background: var(--series-2); }
+  .dot-green  { background: var(--series-3); }
+  .dot-violet { background: var(--series-7); }
+  .dot-good   { background: var(--status-good); }
+  .dot-warn   { background: var(--status-warn); }
+  .flow { background: var(--surface-1); border: 1px solid var(--border); border-radius: 8px; padding: 24px; margin-bottom: 12px; }
+  .flow-steps { display: flex; align-items: stretch; overflow-x: auto; }
+  .flow-step { flex: 1; min-width: 110px; display: flex; flex-direction: column; align-items: center; }
+  .step-node { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; margin-bottom: 10px; border: 2px solid transparent; }
+  .step-node.done   { background: color-mix(in srgb, var(--status-good) 15%, transparent); border-color: var(--status-good); color: var(--status-good); }
+  .step-node.active { background: color-mix(in srgb, var(--series-1) 15%, transparent); border-color: var(--series-1); color: var(--series-1); }
+  .step-node.future { background: var(--surface-3); border-color: var(--border); color: var(--text-muted); }
+  .step-label    { font-size: 12px; font-weight: 600; color: var(--text-secondary); text-align: center; margin-bottom: 4px; }
+  .step-sublabel { font-size: 11px; color: var(--text-muted); text-align: center; }
+  .epics-table { width: 100%; border-collapse: collapse; background: var(--surface-1); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; font-size: 14px; }
+  .epics-table thead th { text-align: left; padding: 10px 14px; background: var(--surface-3); color: var(--text-secondary); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 1px solid var(--border); }
+  .epics-table tbody td { padding: 12px 14px; border-bottom: 1px solid var(--border); color: var(--text-primary); vertical-align: top; }
+  .epics-table tbody tr:last-child td { border-bottom: none; }
+  .epic-id { font-weight: 700; font-size: 13px; white-space: nowrap; }
+  .size-pill { display: inline-block; padding: 2px 10px; border-radius: 4px; font-size: 12px; font-weight: 700; }
+  .size-l  { background: color-mix(in srgb, var(--status-serious) 15%, transparent); color: #b05000; }
+  .size-m  { background: color-mix(in srgb, var(--status-warn) 15%, transparent); color: #8a6000; }
+  .size-s  { background: color-mix(in srgb, var(--series-3) 12%, transparent); color: var(--series-3); }
+  .complexity-pill { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .complexity-high   { background: color-mix(in srgb, var(--status-crit) 12%, transparent); color: var(--status-crit); }
+  .complexity-medium { background: color-mix(in srgb, var(--status-warn) 15%, transparent); color: #8a6000; }
+  .complexity-low    { background: color-mix(in srgb, var(--status-good) 12%, transparent); color: var(--status-good); }
+  .gap-bar-group { margin-bottom: 10px; }
+  .gap-bar-label { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-secondary); margin-bottom: 4px; }
+  .gap-bar-track { height: 8px; background: var(--surface-3); border-radius: 4px; overflow: hidden; }
+  .gap-bar-fill  { height: 100%; border-radius: 4px; }
+  .decision-list { background: var(--surface-1); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .decision-item { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 13px; align-items: start; }
+  .decision-item:last-child { border-bottom: none; }
+  .decision-question { color: var(--text-secondary); }
+  .decision-answer { color: var(--text-primary); font-weight: 500; }
+  .decision-header { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 8px 16px; background: var(--surface-3); border-bottom: 1px solid var(--border); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+  .arch-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+  .arch-card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+  .arch-card .arch-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 6px; }
+  .arch-card .arch-value { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+  .arch-card .arch-note { font-size: 12px; color: var(--text-secondary); }
+  .apex-class { background: var(--surface-1); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 10px; }
+  .apex-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; background: var(--surface-3); border-bottom: 1px solid var(--border); }
+  .apex-name { font-size: 13px; font-weight: 700; font-family: monospace; color: var(--series-1); }
+  .apex-backs { font-size: 12px; color: var(--text-secondary); }
+  .apex-body { padding: 12px 16px; font-size: 13px; color: var(--text-secondary); }
+  .open-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+  .open-item:last-child { border-bottom: none; }
+  .open-tag { flex-shrink: 0; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 4px; margin-top: 1px; }
+  .tag-phase2 { background: color-mix(in srgb, var(--series-4) 15%, transparent); color: #6b4800; }
+  .tag-build  { background: color-mix(in srgb, var(--series-1) 12%, transparent); color: var(--series-1); }
+  .page-footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-muted); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="page-header">
+    <h1>StartSports Match Operations
+      <span class="badge badge-done">✓ Discover</span>
+      <span class="badge badge-done">✓ Requirements</span>
+      <span class="badge badge-done">✓ Design</span>
+    </h1>
+    <p>Agentforce agent for tournament crew scheduling · Phase 1 demo · Updated 3 Nov 2026</p>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat-tile blue"><div class="value">5</div><div class="label">Custom objects</div></div>
+    <div class="stat-tile violet"><div class="value">4</div><div class="label">Epics</div></div>
+    <div class="stat-tile orange"><div class="value">66</div><div class="label">Gaps identified</div></div>
+    <div class="stat-tile good"><div class="value">29</div><div class="label">Gaps resolved</div></div>
+    <div class="stat-tile green"><div class="value">5</div><div class="label">Agent actions</div></div>
+    <div class="stat-tile warn"><div class="value">3</div><div class="label">Apex classes</div></div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><div class="section-title">Where we are</div></div>
+    <div class="flow">
+      <div class="flow-steps">
+        <div class="flow-step"><div class="step-node done">✓</div><div class="step-label">Connect</div><div class="step-sublabel">Org authenticated</div></div>
+        <div class="flow-step"><div class="step-node done">✓</div><div class="step-label">Discover</div><div class="step-sublabel">Brief ingested</div></div>
+        <div class="flow-step"><div class="step-node done">✓</div><div class="step-label">Requirements</div><div class="step-sublabel">4 epics · 66 gaps</div></div>
+        <div class="flow-step"><div class="step-node done">✓</div><div class="step-label">Design</div><div class="step-sublabel">Architecture + estimates</div></div>
+        <div class="flow-step"><div class="step-node active">→</div><div class="step-label">Roadmap</div><div class="step-sublabel">Phase &amp; sequence</div></div>
+        <div class="flow-step"><div class="step-node future">○</div><div class="step-label">Build</div><div class="step-sublabel">Apex · Agent</div></div>
+        <div class="flow-step"><div class="step-node future">○</div><div class="step-label">Demo</div><div class="step-sublabel">4-step flow</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 1: DISCOVER -->
+  <div class="section">
+    <div class="section-header">
+      <span class="phase-pill phase-1">Phase 1</span>
+      <span class="section-title">Discover — What We Learned</span>
+    </div>
+    <div class="card-grid">
+      <div class="card">
+        <h3>What we started with</h3>
+        <ul>
+          <li><span class="dot dot-blue"></span>A one-page brief: tournament, crew problem, rough Agentforce plan</li>
+          <li><span class="dot dot-blue"></span>Spreadsheet ops — manual assignment, double-booking common</li>
+          <li><span class="dot dot-blue"></span>No Salesforce org, no existing data model</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>What we confirmed</h3>
+        <ul>
+          <li><span class="dot dot-green"></span>Phase 1 = demo / PoC on persistent Developer Edition org</li>
+          <li><span class="dot dot-green"></span>Agent surface = internal Salesforce app (Lightning / Agent Studio)</li>
+          <li><span class="dot dot-green"></span>No data migration — demo seed data only</li>
+          <li><span class="dot dot-green"></span>Two personas: Organiser (uses agent) and Admin (manages data)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Outputs</h3>
+        <ul>
+          <li><span class="dot dot-orange"></span><code style="font-size:12px">outputs/00-discovery-brief.md</code></li>
+          <li><span class="dot dot-orange"></span>16-area extraction audit completed</li>
+          <li><span class="dot dot-orange"></span>Trailhead research confirming Agentforce build path</li>
+          <li><span class="dot dot-orange"></span>Project terminology locked (Organiser, Admin, Set, Staffing)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 2: REQUIREMENTS -->
+  <div class="section">
+    <div class="section-header">
+      <span class="phase-pill phase-2">Phase 2</span>
+      <span class="section-title">Requirements — What We Scoped</span>
+    </div>
+    <table class="epics-table" style="margin-bottom:16px;">
+      <thead><tr><th>Epic</th><th>What it covers</th><th>Complexity</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="epic-id" style="color:var(--series-1)">E01</span></td>
+          <td><strong>Data Model &amp; Custom Objects</strong><br><span style="font-size:13px;color:var(--text-secondary)">5 custom objects, relationships, picklists, validation rules, page layouts.</span></td>
+          <td><span class="complexity-pill complexity-low">Low</span></td>
+        </tr>
+        <tr>
+          <td><span class="epic-id" style="color:var(--series-7)">E02</span></td>
+          <td><strong>Agentforce Agent Configuration</strong><br><span style="font-size:13px;color:var(--text-secondary)">1 Topic, 5 Actions, agent guardrails, confirmation gate, Organiser permission set.</span></td>
+          <td><span class="complexity-pill complexity-medium">Medium</span></td>
+        </tr>
+        <tr>
+          <td><span class="epic-id" style="color:var(--status-crit)">E03</span></td>
+          <td><strong>Scheduling Logic &amp; Business Rules</strong><br><span style="font-size:13px;color:var(--text-secondary)">Custom Apex for overlap detection, crew minimums, role uniqueness, stadium conflict. Highest complexity.</span></td>
+          <td><span class="complexity-pill complexity-high">High</span></td>
+        </tr>
+        <tr>
+          <td><span class="epic-id" style="color:var(--series-3)">E04</span></td>
+          <td><strong>Demo Environment &amp; Seed Data</strong><br><span style="font-size:13px;color:var(--text-secondary)">DE org setup, SFDX deploy, seed data, reset script, smoke test.</span></td>
+          <td><span class="complexity-pill complexity-low">Low–Med</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="card">
+      <h3>Gaps by category (66 total · 29 resolved with you)</h3>
+      <div style="margin-top:8px;">
+        <div class="gap-bar-group"><div class="gap-bar-label"><span>Ambiguity</span><span>19</span></div><div class="gap-bar-track"><div class="gap-bar-fill" style="width:29%;background:var(--series-1);"></div></div></div>
+        <div class="gap-bar-group"><div class="gap-bar-label"><span>Missing Requirement</span><span>18</span></div><div class="gap-bar-track"><div class="gap-bar-fill" style="width:27%;background:var(--series-7);"></div></div></div>
+        <div class="gap-bar-group"><div class="gap-bar-label"><span>Potential Risk</span><span>12</span></div><div class="gap-bar-track"><div class="gap-bar-fill" style="width:18%;background:var(--status-serious);"></div></div></div>
+        <div class="gap-bar-group"><div class="gap-bar-label"><span>Logical Gap</span><span>11</span></div><div class="gap-bar-track"><div class="gap-bar-fill" style="width:17%;background:var(--series-2);"></div></div></div>
+        <div class="gap-bar-group"><div class="gap-bar-label"><span>Assumption</span><span>5</span></div><div class="gap-bar-track"><div class="gap-bar-fill" style="width:8%;background:var(--series-4);"></div></div></div>
+        <div class="gap-bar-group"><div class="gap-bar-label"><span>Capability Gap</span><span>3</span></div><div class="gap-bar-track"><div class="gap-bar-fill" style="width:5%;background:var(--status-crit);"></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 3: DESIGN -->
+  <div class="section">
+    <div class="section-header">
+      <span class="phase-pill phase-3">Phase 3</span>
+      <span class="section-title">Design — Architecture &amp; T-Shirt Estimates</span>
+    </div>
+    <p style="font-size:14px;color:var(--text-secondary);margin-bottom:16px;">
+      Design translates epics into a concrete Salesforce architecture — choosing the tech pattern for each capability — and assigns a complexity size using an 8-dimension rubric.
+    </p>
+
+    <div style="margin-bottom:16px;">
+      <p style="font-size:13px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;">Architecture Foundations</p>
+      <div class="arch-grid">
+        <div class="arch-card">
+          <div class="arch-label">Platform</div>
+          <div class="arch-value">Salesforce Core + Agentforce</div>
+          <div class="arch-note">No Industry Cloud, Data Cloud, or Marketing Cloud. Core platform only — clean and focused.</div>
+        </div>
+        <div class="arch-card">
+          <div class="arch-label">Org Strategy</div>
+          <div class="arch-value">Single persistent DE org</div>
+          <div class="arch-note">No scratch org, no DevHub. Deploy once, reset between demos via anonymous Apex.</div>
+        </div>
+        <div class="arch-card">
+          <div class="arch-label">Automation pattern</div>
+          <div class="arch-value">Apex @InvocableMethod per Action</div>
+          <div class="arch-note">Flow can't do datetime overlap arithmetic. Each of the 5 agent actions calls its own dedicated Apex class.</div>
+        </div>
+        <div class="arch-card">
+          <div class="arch-label">Security</div>
+          <div class="arch-value">OWD + 2 Permission Sets</div>
+          <div class="arch-note">Match_Organiser (agent + records) and Match_Admin (master data CRUD). Standard, no Apex-managed sharing.</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:16px;">
+      <p style="font-size:13px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;">The 3 Apex Classes Behind E03 (hardest epic)</p>
+      <div class="apex-class">
+        <div class="apex-header"><span class="apex-name">StaffAvailabilityChecker</span><span class="apex-backs">backs Action 3 — Check Staff Availability</span></div>
+        <div class="apex-body">Datetime overlap SOQL: finds staff with conflicting assignments using the touching-times rule (start B &lt; end A = conflict). Also checks stadium conflict (same stadium, overlapping window). Returns available staff by role, or a stadium-blocked error.</div>
+      </div>
+      <div class="apex-class">
+        <div class="apex-header"><span class="apex-name">StaffAssigner</span><span class="apex-backs">backs Action 4 — Assign Staff</span></div>
+        <div class="apex-body">Re-validates availability inline before writing (defensive — catches race conditions). Inserts Match_Assignment__c. Updates Match status from Draft → Staffing on first assignment. Returns success message or conflict error.</div>
+      </div>
+      <div class="apex-class">
+        <div class="apex-header"><span class="apex-name">MatchConfirmer</span><span class="apex-backs">backs Action 5 — Confirm Match</span></div>
+        <div class="apex-body">Checks crew minimums: Ground Staff ≥ 4, Commentators ≥ 2, Camera Operators ≥ 3. If all pass: updates Match status → Set, returns crew summary. If any fail: returns "Need X more [Role] before confirming."</div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:16px;">
+      <p style="font-size:13px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;">T-Shirt Estimates</p>
+      <table class="epics-table">
+        <thead><tr><th>Epic</th><th>Size</th><th>Primary driver</th><th>Key risk</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="epic-id" style="color:var(--series-1)">E01</span> Data Model</td>
+            <td><span class="size-pill size-m">M</span></td>
+            <td style="font-size:13px;">5-object relational model with M-D and lifecycle rules</td>
+            <td style="font-size:13px;color:var(--text-secondary);">Field validation rules not fully specified</td>
+          </tr>
+          <tr>
+            <td><span class="epic-id" style="color:var(--series-7)">E02</span> Agent Config</td>
+            <td><span class="size-pill size-l">L</span></td>
+            <td style="font-size:13px;">5 custom actions, instruction engineering, confirmation gate, scope guardrails</td>
+            <td style="font-size:13px;color:var(--text-secondary);">Instruction quality determines demo reliability</td>
+          </tr>
+          <tr>
+            <td><span class="epic-id" style="color:var(--status-crit)">E03</span> Scheduling Logic</td>
+            <td><span class="size-pill size-l">L</span></td>
+            <td style="font-size:13px;">Custom Apex overlap SOQL, 3 invocable classes, multi-condition rules</td>
+            <td style="font-size:13px;color:var(--text-secondary);">Overlap detection bug silently breaks demo — test coverage is critical</td>
+          </tr>
+          <tr>
+            <td><span class="epic-id" style="color:var(--series-3)">E04</span> Demo Environment</td>
+            <td><span class="size-pill size-s">S</span></td>
+            <td style="font-size:13px;">SFDX deploy + seed data + reset script</td>
+            <td style="font-size:13px;color:var(--text-secondary);">Deployment sequence and pre-demo reset procedure</td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="font-size:12px;color:var(--text-muted);margin-top:10px;">⚠ Sizes are <strong>relative complexity, not effort</strong> — not hour-convertible. Benchmark orientation for an Agentforce internal use case of this profile: <strong>8–12 weeks</strong> (model-training-data anchor, not a commitment).</p>
+    </div>
+
+    <div>
+      <p style="font-size:13px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;">Architecture Decisions Made in Design</p>
+      <div class="decision-list">
+        <div class="decision-header"><span>Decision</span><span>Rationale</span></div>
+        <div class="decision-item"><div class="decision-question">Flow or Apex for scheduling?</div><div class="decision-answer">Apex @InvocableMethod — Flow can't do datetime overlap arithmetic across records. One class per action.</div></div>
+        <div class="decision-item"><div class="decision-question">Match_Assignment → Match: M-D or Lookup?</div><div class="decision-answer">Master-Detail — cascade-delete. Assignments are owned by and deleted with their Match.</div></div>
+        <div class="decision-item"><div class="decision-question">Where do crew thresholds live?</div><div class="decision-answer">Hardcoded Apex constants for Phase 1. Custom Metadata is the Phase 2 upgrade path.</div></div>
+        <div class="decision-item"><div class="decision-question">One Apex class or one per action?</div><div class="decision-answer">Compound-per-action (one class per action) — single responsibility, easier to test.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- All decisions across all phases -->
+  <div class="section">
+    <div class="section-header">
+      <span class="phase-pill" style="background:color-mix(in srgb,var(--series-4) 15%,transparent);color:#6b4800;">All Phases</span>
+      <span class="section-title">All Confirmed Decisions</span>
+    </div>
+    <div class="decision-list">
+      <div class="decision-header"><span>Topic</span><span>Decision</span></div>
+      <div class="decision-item"><div class="decision-question">Match time window</div><div class="decision-answer">Two fields: Start_DateTime__c + End_DateTime__c. Touching times count as a conflict.</div></div>
+      <div class="decision-item"><div class="decision-question">Assignment write timing</div><div class="decision-answer">Written immediately in Action 4, after in-conversation confirm from Organiser.</div></div>
+      <div class="decision-item"><div class="decision-question">"Set" trigger</div><div class="decision-answer">Organiser explicitly calls Action 5. No automatic trigger.</div></div>
+      <div class="decision-item"><div class="decision-question">Role field location</div><div class="decision-answer">Permanent picklist on Staff_Member__c. No cross-role assignments.</div></div>
+      <div class="decision-item"><div class="decision-question">Set is final?</div><div class="decision-answer">Yes. Validation rule blocks edits. No un-confirm in Phase 1.</div></div>
+      <div class="decision-item"><div class="decision-question">Partial assignment</div><div class="decision-answer">Allowed. Match stays Staffing. Organiser can return across multiple sessions.</div></div>
+      <div class="decision-item"><div class="decision-question">Demo org type</div><div class="decision-answer">Persistent Developer Edition org. No scratch org, no DevHub.</div></div>
+      <div class="decision-item"><div class="decision-question">Reset mechanism</div><div class="decision-answer">Anonymous Apex: delete all Match Assignments, reset Match statuses to Draft.</div></div>
+      <div class="decision-item"><div class="decision-question">Automation pattern</div><div class="decision-answer">Apex @InvocableMethod per action — Flow can't handle datetime overlap detection.</div></div>
+      <div class="decision-item"><div class="decision-question">Relationship type</div><div class="decision-answer">Master-Detail on Match_Assignment → Match (cascade-delete).</div></div>
+      <div class="decision-item"><div class="decision-question">Crew thresholds</div><div class="decision-answer">Hardcoded Apex constants for Phase 1. Custom Metadata upgrade in Phase 2.</div></div>
+    </div>
+  </div>
+
+  <!-- Still open -->
+  <div class="section">
+    <div class="section-header">
+      <span class="phase-pill phase-next">Still Open</span>
+      <span class="section-title">What Hasn't Been Decided Yet</span>
+    </div>
+    <div class="card">
+      <ul style="list-style:none;padding:0;">
+        <div class="open-item"><span class="open-tag tag-phase2">Phase 2</span><span>What comes after Phase 1? (Ticketing, staff self-service, schedule auto-generation?)</span></div>
+        <div class="open-item"><span class="open-tag tag-phase2">Phase 2</span><span>How many Organiser and Admin seats? What Salesforce license tier?</span></div>
+        <div class="open-item"><span class="open-tag tag-phase2">Phase 2</span><span>Future agent channels — Slack, Experience Cloud, mobile?</span></div>
+        <div class="open-item"><span class="open-tag tag-build">Build team</span><span>Who owns the DE org and runs the reset script before each demo session?</span></div>
+        <div class="open-item"><span class="open-tag tag-build">Build team</span><span>Apex test coverage plan — overlap detection needs non-trivial test data setup</span></div>
+        <div class="open-item"><span class="open-tag tag-build">Build team</span><span>Agent instruction testing — realistic Organiser prompts across all 5 actions before demo day</span></div>
+      </ul>
+    </div>
+  </div>
+
+  <!-- What's next -->
+  <div class="section">
+    <div class="section-header"><span class="section-title">What's Next</span></div>
+    <div class="card-grid">
+      <div class="card" style="border-left:3px solid var(--series-1);">
+        <h3>Roadmap (recommended next)</h3>
+        <ul>
+          <li><span class="dot dot-blue"></span>Phase and sequence the 4 epics</li>
+          <li><span class="dot dot-blue"></span>Benchmark-based timeline range</li>
+          <li><span class="dot dot-blue"></span>Epic dependencies and ordering</li>
+        </ul>
+        <p style="font-size:12px;color:var(--text-muted);margin-top:10px;">Say: <strong>"build the roadmap"</strong></p>
+      </div>
+      <div class="card" style="border-left:3px solid var(--series-7);">
+        <h3>Backlog (when build team is ready)</h3>
+        <ul>
+          <li><span class="dot dot-violet"></span>Break epics into user stories</li>
+          <li><span class="dot dot-violet"></span>Acceptance criteria per story</li>
+          <li><span class="dot dot-violet"></span>Sprint-ready work items</li>
+        </ul>
+        <p style="font-size:12px;color:var(--text-muted);margin-top:10px;">Say: <strong>"generate the backlog"</strong></p>
+      </div>
+      <div class="card" style="border-left:3px solid var(--series-3);">
+        <h3>Export</h3>
+        <ul>
+          <li><span class="dot dot-green"></span>Excel workbook (epics + gaps + estimates)</li>
+          <li><span class="dot dot-green"></span>Full shareable deliverable package</li>
+        </ul>
+        <p style="font-size:12px;color:var(--text-muted);margin-top:10px;">Say: <strong>"export"</strong></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">Generated by Scopezilla · StartSports Match Operations · 3 Nov 2026</div>
+</div>
+</body>
+</html>

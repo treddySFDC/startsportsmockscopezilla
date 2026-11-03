@@ -1,0 +1,398 @@
+[
+  {
+    "gap_id": "G0101",
+    "category": "Ambiguity",
+    "gap_or_question": "Match time window definition.",
+    "impact_or_notes": "RESOLVED: Match has two datetime fields — Start_DateTime__c and End_DateTime__c. Overlap detection uses both fields for staff double-booking and stadium conflict checks."
+  },
+  {
+    "gap_id": "G0102",
+    "category": "Logical Gap",
+    "gap_or_question": "Match start datetime field missing.",
+    "impact_or_notes": "RESOLVED: Start_DateTime__c added to Match object (part of G0101 resolution)."
+  },
+  {
+    "gap_id": "G0103",
+    "category": "Logical Gap",
+    "gap_or_question": "Role field design — on Staff Member or Match Assignment?",
+    "impact_or_notes": "RESOLVED: Role__c is a permanent classification on Staff Member (Ground Staff / Commentator / Camera Operator). Match Assignment inherits the role from the Staff Member at assignment time."
+  },
+  {
+    "gap_id": "G0104",
+    "category": "Ambiguity",
+    "gap_or_question": "Role on Match Assignment — derived or independent?",
+    "impact_or_notes": "RESOLVED: Role on Assignment is derived from Staff Member Role__c at assignment time. Organiser cannot assign a staff member to a role different from their classification."
+  },
+  {
+    "gap_id": "G0105",
+    "category": "Missing Requirement",
+    "gap_or_question": "Staff Member availability flag missing.",
+    "impact_or_notes": "RESOLVED: Add Is_Active__c checkbox to Staff Member. Agent only considers active staff (Is_Active__c = true) when checking availability."
+  },
+  {
+    "gap_id": "G0106",
+    "category": "Missing Requirement",
+    "gap_or_question": "Stadium object fields are not defined in the epic. Beyond the object name, no fields (Name, City, Capacity) are specified.",
+    "impact_or_notes": "Organiser-facing match display and any future extensions have no anchor. An empty object schema is a delivery risk even for a PoC."
+  },
+  {
+    "gap_id": "G0107",
+    "category": "Missing Requirement",
+    "gap_or_question": "Team object fields are not specified. No field definitions given beyond the object name.",
+    "impact_or_notes": "Match records must reference Teams. Without a relationship field, the demo data model is incomplete and the agent has no team context when discussing a match."
+  },
+  {
+    "gap_id": "G0108",
+    "category": "Logical Gap",
+    "gap_or_question": "Match-to-Team relationship unspecified.",
+    "impact_or_notes": "RESOLVED: Two lookup fields on Match — Home_Team__c and Away_Team__c — both pointing to Team object. Simple, matches the brief Team A / Team B language."
+  },
+  {
+    "gap_id": "G0109",
+    "category": "Ambiguity",
+    "gap_or_question": "Match Status transition rules undefined.",
+    "impact_or_notes": "RESOLVED: Set is a final state. A validation rule blocks any further Assignment changes on a Match with Status = Set. Match cannot revert from Set."
+  },
+  {
+    "gap_id": "G0110",
+    "category": "Potential Risk",
+    "gap_or_question": "All five custom objects are in a scratch org with no namespace. If the project moves to a managed package or persistent org, API names will conflict.",
+    "impact_or_notes": "Low risk for demo PoC short-term. Decision to omit namespace should be explicitly logged for stakeholders."
+  },
+  {
+    "gap_id": "G0111",
+    "category": "Potential Risk",
+    "gap_or_question": "No indexing strategy defined on Start_DateTime__c. SOQL queries for overlap detection across assignments could hit governor limits if seed data grows.",
+    "impact_or_notes": "Low risk at demo scale. Date-range overlap query fields should be noted for custom indexing consideration during field definition."
+  },
+  {
+    "gap_id": "G0112",
+    "category": "Assumption",
+    "gap_or_question": "Standard Salesforce OWD (Public Read/Write or Private) assumed sufficient with no custom sharing rules, given single Organiser + Admin personas.",
+    "impact_or_notes": "If multiple Organisers are added, record visibility becomes relevant. Sharing model should be documented for repeatable scratch org setup."
+  },
+  {
+    "gap_id": "G0113",
+    "category": "Governance",
+    "gap_or_question": "No record ownership or data stewardship model defined for the five custom objects. Unclear whether Admin or Organiser is the record owner.",
+    "impact_or_notes": "For a demo, low risk. But automation triggered by record ownership will behave unpredictably if ownership is not standardised. A brief ownership convention should be stated."
+  },
+  {
+    "gap_id": "G0114",
+    "category": "Missing Requirement",
+    "gap_or_question": "No page layouts, compact layouts, or list views specified for any of the five objects. Admin manages master data through default Salesforce UI.",
+    "impact_or_notes": "Default layouts surface all fields including system fields, creating a poor demo experience. Match and Match Assignment at minimum need curated layouts before stakeholder demonstration."
+  },
+  {
+    "gap_id": "G0115",
+    "category": "Missing Requirement",
+    "gap_or_question": "No unique constraint on Match Assignment for D002 at database layer.",
+    "impact_or_notes": "RESOLVED: Add a duplicate rule / unique compound constraint on (Match__c, Staff_Member__c) on Match Assignment. One Staff Member record per Match, full stop."
+  },
+  {
+    "gap_id": "G0201",
+    "category": "Ambiguity",
+    "gap_or_question": "Confirmation gate mechanism.",
+    "impact_or_notes": "RESOLVED: Assign Staff (Action 4) writes the assignment to the database immediately after the agent asks for confirmation and the Organiser says yes — in a single agent turn. No staging. Confirm Match (Action 5) is a separate threshold check + status update, not the point of assignment commit."
+  },
+  {
+    "gap_id": "G0202",
+    "category": "Missing Requirement",
+    "gap_or_question": "Scope of Organiser confirmation.",
+    "impact_or_notes": "RESOLVED: Each individual assignment (per staff member) is confirmed in Action 4. Confirm Match (Action 5) is a separate action that checks minimum thresholds and marks the Match as Set."
+  },
+  {
+    "gap_id": "G0203",
+    "category": "Logical Gap",
+    "gap_or_question": "Action 4 vs Action 5 commit semantics.",
+    "impact_or_notes": "RESOLVED: Action 4 (Assign Staff) commits each assignment immediately after per-assignment confirmation. Action 5 (Confirm Match) checks crew thresholds and transitions Match status to Set."
+  },
+  {
+    "gap_id": "G0204",
+    "category": "Ambiguity",
+    "gap_or_question": "No-staff halt scope — full halt or role-level flag?",
+    "impact_or_notes": "RESOLVED: Agent halts the entire assignment flow when no staff is available for a required role. Alerts the Organiser with the specific role and stops. Organiser must resolve the gap before proceeding."
+  },
+  {
+    "gap_id": "G0205",
+    "category": "Capability Gap",
+    "gap_or_question": "No out-of-scope query handling is specified. There is no guardrail topic, fallback response, or explicit instruction defined for queries outside the five actions (e.g. player statistics, ticket sales, HR queries).",
+    "impact_or_notes": "Without explicit out-of-scope instructions, the agent may hallucinate responses or route to unintended actions in a demo context, undermining trust."
+  },
+  {
+    "gap_id": "G0206",
+    "category": "Potential Risk",
+    "gap_or_question": "Hallucination risk on staff names and availability: if the invocable for Check Staff Availability returns an empty result or an error, the agent may fabricate available staff rather than surface the empty state. No instructions defined for how the agent handles null or error payloads from invocables.",
+    "impact_or_notes": "In a demo this would be immediately visible and damaging. Agent Topic instructions must explicitly state what to say when an action returns no results or fails."
+  },
+  {
+    "gap_id": "G0207",
+    "category": "Missing Requirement",
+    "gap_or_question": "Agent persona guardrails are mentioned but not detailed: no tone, vocabulary constraints, prohibited disclosures, or response-length guidelines are defined for the Organiser-facing persona.",
+    "impact_or_notes": "Without guardrail text in the Topic system prompt, the agent will surface internal field names, IDs, or raw JSON to the Organiser."
+  },
+  {
+    "gap_id": "G0208",
+    "category": "Ambiguity",
+    "gap_or_question": "The five agent actions are named but their input/output contracts are not defined (e.g. does Get Upcoming Matches accept a date range, a team filter, or a match ID? Does Assign Staff accept a staff record ID or a name string?).",
+    "impact_or_notes": "If E02 configuration begins before E03 invocable contracts are finalised, action parameters in Agent Studio will need revision, causing rework."
+  },
+  {
+    "gap_id": "G0209",
+    "category": "Missing Requirement",
+    "gap_or_question": "Agent access — Organiser only or Admin too?",
+    "impact_or_notes": "RESOLVED: Organiser only. Admin uses standard Salesforce UI for master data. A dedicated permission set / Agent User profile is required for the Organiser persona."
+  },
+  {
+    "gap_id": "G0210",
+    "category": "Assumption",
+    "gap_or_question": "It is assumed that Agent Studio is available and licensed in the scratch org configuration. Agentforce requires specific org settings, feature flags, and Einstein platform licences not always enabled by default in scratch orgs.",
+    "impact_or_notes": "If the scratch org definition does not include Agentforce features, the entire epic cannot be tested. scratch-def.json must be verified before E02 work begins."
+  },
+  {
+    "gap_id": "G0211",
+    "category": "Potential Risk",
+    "gap_or_question": "Unassign action undefined.",
+    "impact_or_notes": "RESOLVED: Unassign is out of scope for Phase 1. Agent Topic instructions include an explicit polite refusal for any unassignment request."
+  },
+  {
+    "gap_id": "G0212",
+    "category": "Missing Requirement",
+    "gap_or_question": "Post-confirm conversation behaviour undefined.",
+    "impact_or_notes": "RESOLVED: After delivering the Confirm Match summary, the conversation ends / agent signals done. No further commands accepted on that match in the same session."
+  },
+  {
+    "gap_id": "G0213",
+    "category": "Capability Gap",
+    "gap_or_question": "No error-handling instructions specified for the case where an invocable throws an exception. The agent Topic instructions do not define a fallback utterance, retry guidance, or escalation path.",
+    "impact_or_notes": "Unhandled invocable errors will surface as raw error messages or silent failures to the Organiser, breaking the demo narrative."
+  },
+  {
+    "gap_id": "G0214",
+    "category": "Ambiguity",
+    "gap_or_question": "One Topic (Match Operations) does not clarify whether all five actions are slotted under a single Agentforce Topic or whether distinct Topics are used per action cluster. Agentforce Topic routing behaviour differs from standard LLM function calling and affects how the agent selects actions.",
+    "impact_or_notes": "Misunderstanding Agentforce Topic semantics could lead to actions being unreachable if their descriptions do not match the Topic classifier routing logic."
+  },
+  {
+    "gap_id": "G0215",
+    "category": "Potential Risk",
+    "gap_or_question": "Multi-turn context retention: Agentforce sessions do not automatically persist application state between turns beyond conversation history. If the Organiser closes the session mid-flow (e.g. after checking availability but before assigning), there is no defined behaviour for resuming or discarding partial state.",
+    "impact_or_notes": "For a demo this is a show-stopper scenario if the presenter inadvertently closes the chat pane. Scope must state whether session recovery is in or out of scope for E02."
+  },
+  {
+    "gap_id": "G0301",
+    "category": "Ambiguity",
+    "gap_or_question": "Match overlap definition for conflict detection.",
+    "impact_or_notes": "RESOLVED: Match has Start_DateTime__c and End_DateTime__c. Touching times count as a conflict (start of B <= end of A is a conflict). SOQL overlap predicate: A.Start__c < B.End__c AND A.End__c > B.Start__c, adjusted so touching is also blocked."
+  },
+  {
+    "gap_id": "G0302",
+    "category": "Ambiguity",
+    "gap_or_question": "Overlap boundary — touch or true overlap?",
+    "impact_or_notes": "RESOLVED: Touching counts as a conflict. If Match A ends at 18:00 and Match B starts at 18:00, staff and stadium are still considered blocked."
+  },
+  {
+    "gap_id": "G0303",
+    "category": "Missing Requirement",
+    "gap_or_question": "Stadium conflict scope — whole stadium or sub-venues?",
+    "impact_or_notes": "RESOLVED: Whole stadium is blocked for the duration of a match. One match at a time per stadium. No sub-venue concept in Phase 1."
+  },
+  {
+    "gap_id": "G0304",
+    "category": "Logical Gap",
+    "gap_or_question": "Crew threshold trigger point.",
+    "impact_or_notes": "RESOLVED: Crew threshold check is triggered by the agent Confirm Match action (Action 5). The invocable checks thresholds and, if met, transitions Match status to Set. No automatic trigger on Assignment creation."
+  },
+  {
+    "gap_id": "G0305",
+    "category": "Missing Requirement",
+    "gap_or_question": "Crew minimum scope — per match or per match-day?",
+    "impact_or_notes": "RESOLVED: Per match. Every match independently needs 4 ground staff + 2 commentators + 3 camera operators. No pooling across matches on the same day."
+  },
+  {
+    "gap_id": "G0306",
+    "category": "Ambiguity",
+    "gap_or_question": "Role field cardinality on the Assignment junction object is not defined. Is Role a picklist on Assignment, a lookup to a Role object, or a field on the Staff record itself?",
+    "impact_or_notes": "SOQL for duplicate-role detection and the UI for the agent assignment action both depend on this design choice."
+  },
+  {
+    "gap_id": "G0307",
+    "category": "Logical Gap",
+    "gap_or_question": "One-role-per-person-per-match — unique person or unique person-role?",
+    "impact_or_notes": "RESOLVED: A Staff Member can only appear once on a match, full stop. Unique constraint is on (Match__c, Staff_Member__c) — no two Assignment records for the same staff member on the same match, regardless of role."
+  },
+  {
+    "gap_id": "G0308",
+    "category": "Potential Risk",
+    "gap_or_question": "Double-booking check requires a SOQL query against all Assignment records for overlapping matches. In a bulk context, this query runs per-record and risks hitting governor limits (100 SOQL per transaction).",
+    "impact_or_notes": "Apex trigger bulkification required. A flow calling the invocable per-record in a loop will breach governor limits. Pre-load conflict data into a collection before per-record evaluation."
+  },
+  {
+    "gap_id": "G0309",
+    "category": "Potential Risk",
+    "gap_or_question": "Stadium conflict check requires querying Match records with overlapping time windows filtered by stadium. A non-selective SOQL on these fields may trigger a full table scan at scale.",
+    "impact_or_notes": "Custom indexes on Stadium__c and Start_DateTime__c should be noted during field definition. Low severity for demo scale but worth flagging for future growth."
+  },
+  {
+    "gap_id": "G0310",
+    "category": "Missing Requirement",
+    "gap_or_question": "Error message content and format when the agent alerts and stops (no available staff for a role) is not specified. Should the message name the role, explain why staff are unavailable, and suggest next steps?",
+    "impact_or_notes": "A generic error message breaks the demo narrative. Message template must be defined before the invocable returns a structured fault payload to the agent topic."
+  },
+  {
+    "gap_id": "G0311",
+    "category": "Logical Gap",
+    "gap_or_question": "Partial assignment state on failure.",
+    "impact_or_notes": "RESOLVED: Partial assignments are kept when the agent halts. Match stays in Staffing status. Organiser can return in a later session to assign remaining crew."
+  },
+  {
+    "gap_id": "G0312",
+    "category": "Logical Gap",
+    "gap_or_question": "The order in which business rules are checked is not specified. When multiple rules are violated simultaneously, does the invocable return a single fault or a structured list of all violations?",
+    "impact_or_notes": "Validation sequence affects error message clarity and drives invocable design (single fault vs. compound error list)."
+  },
+  {
+    "gap_id": "G0313",
+    "category": "Ambiguity",
+    "gap_or_question": "Who or what initiates the mark Set action? Is it the Organiser explicitly telling the agent, automatic when thresholds are satisfied, or a button in the UI?",
+    "impact_or_notes": "Determines whether threshold logic lives in a validation rule, an agent action invocable, or a screen flow. Each implementation path has different testability and rollback characteristics."
+  },
+  {
+    "gap_id": "G0314",
+    "category": "Missing Requirement",
+    "gap_or_question": "No unit-test coverage strategy is defined for the invocable logic. Apex invocables must have test classes to deploy. Overlap detection test data setup is non-trivial.",
+    "impact_or_notes": "Without a testing plan the deploy step will fail or require last-minute test class authoring. Test class requirements should be part of this epic definition of done."
+  },
+  {
+    "gap_id": "G0315",
+    "category": "Potential Risk",
+    "gap_or_question": "If an invocable throws an unhandled exception (bad SOQL, null field, governor limit breach), the agent may surface a generic error or silently fail. Agentforce error propagation from invocables is not well documented.",
+    "impact_or_notes": "Fault handling must be explicit: invocable should catch all exceptions and return a structured error output variable rather than throwing. Critical for live demo context."
+  },
+  {
+    "gap_id": "G0316",
+    "category": "Capability Gap",
+    "gap_or_question": "Native Agentforce agent actions do not support transactional rollback. If scheduling logic is split across multiple invocable calls, there is no built-in mechanism to undo a prior assignment if a later rule fails.",
+    "impact_or_notes": "The entire scheduling validation for a single assignment should be performed atomically in a single Apex invocable. Splitting across multiple actions removes all-or-nothing assignment semantics."
+  },
+  {
+    "gap_id": "G0317",
+    "category": "Missing Requirement",
+    "gap_or_question": "The epic does not specify whether business rule invocables are a single compound action or separate granular actions (one per rule). The agent topic design depends on this.",
+    "impact_or_notes": "A single compound invocable is safer for atomicity but harder to reuse. Separate invocables are reusable but require the topic orchestrator to call them in sequence and handle partial failures."
+  },
+  {
+    "gap_id": "G0318",
+    "category": "Assumption",
+    "gap_or_question": "Staff availability is determined solely by the absence of an Assignment record on an overlapping Match — no separate staff availability calendar, leave record, or blocked-date concept exists.",
+    "impact_or_notes": "If staff can be unavailable for reasons other than existing assignments, the double-booking check is insufficient. Must be confirmed as in-scope for Phase 1."
+  },
+  {
+    "gap_id": "G0319",
+    "category": "Assumption",
+    "gap_or_question": "All Phase 1 assignments are created through the agent (not direct record creation in Salesforce UI or data import). If assignments can be created outside the agent, business rules may be bypassed.",
+    "impact_or_notes": "If bypass prevention is required, the invocable logic must be wired to a trigger on the Assignment object, not only to the agent action."
+  },
+  {
+    "gap_id": "G0320",
+    "category": "Potential Risk",
+    "gap_or_question": "Scratch org is ephemeral. If missing or failing test classes block deployment to a fresh org, this epic — the highest-complexity artifact — blocks the entire demo.",
+    "impact_or_notes": "Continuous deployment validation (running Apex tests on each push) should be confirmed as part of the dev workflow."
+  },
+  {
+    "gap_id": "G0321",
+    "category": "Logical Gap",
+    "gap_or_question": "Agent never removes assignments without being asked is a behavioral constraint on the agent topic, not data-layer enforcement. Nothing prevents a direct DML delete on an Assignment record outside the agent.",
+    "impact_or_notes": "For demo purposes agent-layer enforcement may be sufficient. For a production-ready pattern, a deletion-blocking trigger is expected. Decision affects scope of this epic."
+  },
+  {
+    "gap_id": "G0322",
+    "category": "Missing Requirement",
+    "gap_or_question": "Multi-session staffing — can Organiser return to add more crew?",
+    "impact_or_notes": "RESOLVED: Yes. Organiser can assign crew across multiple agent sessions as long as the Match is not Set. Once Set, no further assignments are allowed."
+  },
+  {
+    "gap_id": "G0323",
+    "category": "Ambiguity",
+    "gap_or_question": "Crew thresholds — hardcoded or Admin-configurable?",
+    "impact_or_notes": "RESOLVED: Hardcoded constants for Phase 1, stored in Apex constants or Custom Metadata. Admin-configurable thresholds are explicitly out of scope for Phase 1."
+  },
+  {
+    "gap_id": "G0401",
+    "category": "Missing Requirement",
+    "gap_or_question": "Scratch org expiry policy.",
+    "impact_or_notes": "RESOLVED: Use a persistent Developer Edition org instead of a scratch org. No expiry concern, no DevHub required. Simplest approach for a stable demo asset."
+  },
+  {
+    "gap_id": "G0402",
+    "category": "Missing Requirement",
+    "gap_or_question": "Demo environment owner and DevHub credentials.",
+    "impact_or_notes": "RESOLVED: No DevHub needed (persistent DE org decision). Demo owner is whoever runs the deploy — TBD by the build team."
+  },
+  {
+    "gap_id": "G0403",
+    "category": "Missing Requirement",
+    "gap_or_question": "Demo reset mechanism.",
+    "impact_or_notes": "RESOLVED: A reset script (Apex anonymous) will delete all Match Assignment records and reset all Match statuses back to Draft/Staffing. Run before each demo to restore a clean state."
+  },
+  {
+    "gap_id": "G0404",
+    "category": "Ambiguity",
+    "gap_or_question": "Deployment tooling and pipeline are not specified. Unclear whether deployment uses SFDX source push, Salesforce CLI metadata deploy, a CI/CD pipeline, or a manual process. No project-scratch-def.json or deployment runbook referenced.",
+    "impact_or_notes": "Without a repeatable deployment script, re-provisioning is ad hoc and error-prone. A new team member cannot independently stand up the demo org."
+  },
+  {
+    "gap_id": "G0405",
+    "category": "Ambiguity",
+    "gap_or_question": "Seed data design rules for staff availability are not defined. For demo step 2 (Who is available for Match 3?), staff must include eligible candidates and exclude some, to make the agent response non-trivial.",
+    "impact_or_notes": "If all staff are available for every match, the demo response is uninteresting. If availability logic is misconfigured in seed data, the agent may return zero results, undermining the demo narrative."
+  },
+  {
+    "gap_id": "G0406",
+    "category": "Ambiguity",
+    "gap_or_question": "Number of staff records per role and mix of available vs. unavailable staff for a compelling demo is not specified. Roughly 10 staff per role is cited but no specification of how many should be unavailable and for what reason.",
+    "impact_or_notes": "Without this specification, seed data may trivialise the availability query or break it entirely."
+  },
+  {
+    "gap_id": "G0407",
+    "category": "Ambiguity",
+    "gap_or_question": "Match dataset composition for seed data.",
+    "impact_or_notes": "RESOLVED: 5 matches, 3 stadiums, 6 staff per role. Some staff pre-assigned to matches (creating realistic conflicts) so the availability check in demo step 2 returns a non-trivial result."
+  },
+  {
+    "gap_id": "G0408",
+    "category": "Logical Gap",
+    "gap_or_question": "Seed data staff names must match demo script.",
+    "impact_or_notes": "RESOLVED: Demo script will be written against the seed data (not the other way around). Seed data author names the staff records; demo presenter script is finalised after seed data is built."
+  },
+  {
+    "gap_id": "G0409",
+    "category": "Potential Risk",
+    "gap_or_question": "No DevHub org or Connected App configuration documented. Scratch org creation requires an authorised DevHub. If it is a personal org rather than a shared team asset, the scratch org cannot be re-created by anyone else.",
+    "impact_or_notes": "Bus-factor-1 risk for the entire demo environment. A shared service account or team DevHub should be specified."
+  },
+  {
+    "gap_id": "G0410",
+    "category": "Potential Risk",
+    "gap_or_question": "No smoke-test or post-deploy verification step defined. If the agent is misconfigured after a fresh provision, it may silently fail during the demo without prior indication.",
+    "impact_or_notes": "A post-deploy validation checklist or automated health-check script is needed to confirm the agent responds correctly to at least one test utterance before a client-facing session."
+  },
+  {
+    "gap_id": "G0411",
+    "category": "Assumption",
+    "gap_or_question": "All custom objects, fields, and agent configuration are assumed to be version-controllable as SFDX source metadata and fully re-deployable to a fresh scratch org without manual post-deploy steps. Not validated against actual Agentforce metadata types.",
+    "impact_or_notes": "Some Agentforce configuration may require post-deploy activation steps not captured in source metadata. If unverified, a fresh provision may produce a non-functional agent."
+  },
+  {
+    "gap_id": "G0412",
+    "category": "Assumption",
+    "gap_or_question": "Seed data is assumed loadable via script (Apex anonymous, data import, or SFDX data commands) and record relationships are assumed resolvable by name rather than ID across fresh org provisions.",
+    "impact_or_notes": "Salesforce record IDs are not portable across org provisions. If the demo script or agent actions reference records by ID rather than name / external ID, the seed load must assign consistent external IDs."
+  },
+  {
+    "gap_id": "G0413",
+    "category": "Capability Gap",
+    "gap_or_question": "No acceptance criteria exist for the demo environment epic. No definition of done that confirms the provisioned org supports all four demo steps end-to-end before a session is declared ready.",
+    "impact_or_notes": "Without an environment readiness checklist, teams may declare the environment ready when it is only partially functional, discovering failures during a live client demo."
+  }
+]

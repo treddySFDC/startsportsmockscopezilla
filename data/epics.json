@@ -1,0 +1,39 @@
+[
+  {
+    "epic_id": "E01",
+    "epic_name": "Data Model & Custom Objects",
+    "description": "Set up the five custom Salesforce objects that back the entire application: Team, Stadium, Match, Staff Member, and Match Assignment. Includes field definitions, object relationships (Match → Stadium, Match Assignment → Match + Staff Member), status picklist on Match (Draft / Staffing / Set), and role picklist on Staff Member. Admin persona manages data through standard Salesforce UI.",
+    "confidence": "Confirmed",
+    "kb_sources": [
+      "[assumption: field-level validation rules (e.g. capacity not negative) not specified — assumed standard; what would validate: Admin UX requirements]"
+    ]
+  },
+  {
+    "epic_id": "E02",
+    "epic_name": "Agentforce Agent Configuration",
+    "description": "Define and configure the Agentforce agent for the Organiser persona. Covers one Topic (Match Operations), five agent Actions (Get Teams, Get Upcoming Matches, Check Staff Availability, Assign Staff, Confirm Match), agent instructions and persona guardrails, and the confirmation gate (agent never assigns without Organiser confirmation). Surface: internal Salesforce app via Agent Studio.",
+    "confidence": "Confirmed",
+    "kb_sources": [
+      "[extends: agent-customization-with-flows — agent-ready Flow pattern (https://trailhead.salesforce.com/en/content/learn/modules/agent-customization-with-flows)]",
+      "[extends: agent-customization-with-apex — custom agent actions via Apex (https://trailhead.salesforce.com/en/content/learn/modules/agent-customization-with-apex)]"
+    ]
+  },
+  {
+    "epic_id": "E03",
+    "epic_name": "Scheduling Logic & Business Rules",
+    "description": "Build the custom backing logic (Flow or Apex invocables) that enforces all Phase 1 business rules: no double-booking of staff across overlapping matches, minimum crew thresholds (4 ground staff / 2 commentators / 3 camera operators) before a match can be marked Set, one role per person per match, and stadium conflict check. This is the highest-complexity epic — none of these rules are native Agentforce capabilities. Includes the alert-and-stop behaviour when no staff is available for a required role.",
+    "confidence": "Confirmed",
+    "kb_sources": [
+      "[assumption: overlap detection is time-based (match date/time); no duration or end-time field specified on Match — what would validate: confirm Match object has a duration or end-time field, or overlap is inferred from a fixed window]"
+    ]
+  },
+  {
+    "epic_id": "E04",
+    "epic_name": "Demo Environment & Seed Data",
+    "description": "Provision the scratch org, deploy all metadata (custom objects, agent configuration, backing logic), and seed a realistic demo dataset: teams, stadiums, staff members across all three roles, and a set of upcoming matches. Supports the four-step demo flow documented in the brief. No real data migration — all data is hand-crafted for the demo.",
+    "confidence": "Confirmed",
+    "kb_sources": [
+      "[assumption: demo dataset is small (handful of teams, ~10 staff per role, ~5 matches); what would validate: confirm with demo owner]"
+    ]
+  }
+]

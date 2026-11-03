@@ -1,0 +1,90 @@
+[
+  {
+    "item_id": "E01",
+    "item_type": "epic",
+    "t_shirt_size": "M",
+    "size_drivers": {
+      "data_model": {
+        "tier": "M",
+        "signal": "5 related custom objects, Master-Detail on Match_Assignment, two Team lookups on Match (Home/Away) — standard 3-5 object relational model"
+      },
+      "automation": {
+        "tier": "S",
+        "signal": "Validation rule (block edits on Set match) + duplicate rule (Match + Staff Member unique) — declarative, low DML, no Apex"
+      },
+      "ui": {
+        "tier": "XS",
+        "signal": "Standard Lightning page layouts for Admin persona; no LWC required"
+      }
+    },
+    "size_rationale": "M — driven by 5-object relational model with junction relationship; automation and UI are lightweight declarative config",
+    "complexity_drivers": "Five net-new custom objects with relational dependencies (M-D, dual lookups). Validation rule and duplicate rule are the only automation. Admin works entirely in standard UI.",
+    "skills_needed": "Salesforce Admin / Developer (configuration + declarative automation)",
+    "risks": "Field-level validation rules not fully specified — assumed standard; confirm Admin UX requirements before field schema is finalised.",
+    "solution_approach": "Custom object build via Setup UI or SFDX metadata. Standard page layouts. Validation rule on Match_Assignment (Status = Set blocks edits). Duplicate rule on (Match__c, Staff_Member__c).",
+    "confidence": "Confirmed"
+  },
+  {
+    "item_id": "E02",
+    "item_type": "epic",
+    "t_shirt_size": "L",
+    "size_drivers": {
+      "intelligence_ai": {
+        "tier": "L",
+        "signal": "5 custom Agentforce Actions, custom Topic with instruction engineering, confirmation-gate design, scope-limiting guardrails, agent persona tuning — multi-action agent requiring iterative prompt/instruction work [extends: agent-customization-with-apex Trailhead trail]"
+      },
+      "automation": {
+        "tier": "S",
+        "signal": "Permission set creation + agent surface configuration — declarative setup"
+      }
+    },
+    "size_rationale": "L — driven by multi-action agent complexity: 5 custom actions, instruction engineering, confirmation gate, and scope guardrails require iteration and testing to get natural-language mapping reliable",
+    "complexity_drivers": "Agentforce agent configuration is the UX layer for this build. Getting the natural-language → action mapping reliable across 5 actions, with a confirmation gate and scope-limiting instructions, takes careful instruction design and iterative testing. Not a simple plug-and-play configuration.",
+    "skills_needed": "Agentforce specialist (topic/action/instruction design), Salesforce Developer (Apex invocable wiring), QA (conversation testing)",
+    "risks": "Agent instruction quality determines demo reliability. Poor guardrails will cause the agent to attempt out-of-scope actions or skip the confirmation gate. Instruction testing with realistic Organiser prompts is required before demo day.",
+    "solution_approach": "One Topic (Match_Operations), 5 Actions each backed by an Apex @InvocableMethod. Agent instructions engineered to: (1) always confirm before assigning, (2) decline out-of-scope requests, (3) surface conflict errors clearly. Permission set Match_Organiser assigned to demo user.",
+    "confidence": "Confirmed"
+  },
+  {
+    "item_id": "E03",
+    "item_type": "epic",
+    "t_shirt_size": "L",
+    "size_drivers": {
+      "automation": {
+        "tier": "L",
+        "signal": "3 Apex @InvocableMethod classes with custom datetime overlap SOQL, multi-condition business rule enforcement (crew minimums per role, role uniqueness, stadium conflict), inline re-validation in StaffAssigner, status lifecycle management — multiple DML paths and branching logic [assumption: standard Agentforce Apex invocable pattern; validated by Trailhead agent-customization-with-apex]"
+      },
+      "data_model": {
+        "tier": "S",
+        "signal": "Read-only queries against existing objects; no new schema"
+      }
+    },
+    "size_rationale": "L — driven by Apex complexity: custom datetime overlap detection (touching-times boundary condition), 3 invocable classes with branching logic, inline re-validation, minimum-threshold checking. One dominant driver; no breadth bump needed.",
+    "complexity_drivers": "The overlap detection SOQL is the hardest piece: must correctly handle the touching-times boundary (start B <= end A). Three separate Apex classes each with distinct logic: (1) availability checker + stadium conflict, (2) assigner with re-validation + status update, (3) confirmer with threshold check + Set transition. Non-trivial Apex test data setup required to cover all conflict scenarios.",
+    "risks": "Overlap detection bug silently breaks the demo. Test coverage must include: (a) touching times, (b) fully overlapping matches, (c) no-conflict case, (d) partial crew assignment across sessions. Governor limits are not a concern at demo scale (5 matches, 18 staff) but note for Phase 2 scaling.",
+    "solution_approach": "Three @InvocableMethod Apex classes: StaffAvailabilityChecker (datetime SOQL overlap check + stadium conflict), StaffAssigner (re-validate + insert Match_Assignment + status update to Staffing), MatchConfirmer (threshold check + update status to Set + return crew summary). Hardcoded thresholds as final static integers. Apex test classes with realistic conflict scenarios.",
+    "solution_approach_notes": "size_if_assumption_breaks: L is solid regardless; if Phase 2 requires configurable thresholds (Custom Metadata + admin UI), add S to the estimate at that point",
+    "confidence": "Confirmed"
+  },
+  {
+    "item_id": "E04",
+    "item_type": "epic",
+    "t_shirt_size": "S",
+    "size_drivers": {
+      "automation": {
+        "tier": "S",
+        "signal": "SFDX metadata deploy + anonymous Apex reset script (delete assignments, reset statuses) — scripted, low logic complexity"
+      },
+      "data_model": {
+        "tier": "XS",
+        "signal": "Seed data insertion only; no schema changes"
+      }
+    },
+    "size_rationale": "S — deployment pipeline + seed data + reset script; main risk is operational (deployment sequence), not technical complexity",
+    "complexity_drivers": "Straightforward SFDX deploy + data seeding. Reset script is 5 lines of anonymous Apex. Seed data must be designed deliberately: Match 3 pre-seeded with 2 Camera Operators to create visible conflicts; at least 1 staff per role with a time-overlapping assignment on another match.",
+    "skills_needed": "Salesforce Developer (SFDX deployment), Demo owner (script rehearsal and reset procedure)",
+    "risks": "Deployment sequence matters — objects must deploy before agent config, agent config before seed data. Post-deploy smoke test required. Demo owner must know the reset procedure and run it before each session.",
+    "solution_approach": "sf project deploy start from SFDX project. Anonymous Apex seed data script (or Data Loader CSV import). Anonymous Apex reset script: delete all Match_Assignment__c, reset all Match Status__c to Draft. Post-deploy verification: confirm agent is active in Agent Studio, run demo flow once end-to-end.",
+    "confidence": "Confirmed"
+  }
+]

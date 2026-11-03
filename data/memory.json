@@ -1,5 +1,104 @@
 {
-  "sessions": [],
-  "preferences": {},
-  "decision_log": []
+  "sessions": [
+    {
+      "date": "2026-11-02",
+      "skills_used": ["setup", "discover", "requirements"],
+      "produced": "Ingested brief.md, ran extraction matrix, conducted adaptive interview, produced 00-discovery-brief.md, defined 4 epics (E01-E04), ran gap analysis across all epics (66 gaps), saved epics.json + gaps.json",
+      "decisions_requirements": [
+        {
+          "decision": "4 epics approved: E01 Data Model, E02 Agentforce Agent, E03 Scheduling Logic (highest complexity), E04 Demo Environment",
+          "rationale": "User approved epic skeleton without modifications",
+          "rejected_alternatives": ["Merging E03 into E02 (rejected — scheduling logic is complex enough to warrant its own epic)"]
+        }
+      ],
+      "produced": "Ingested brief.md, ran extraction matrix, conducted adaptive interview, produced 00-discovery-brief.md",
+      "decisions": [
+        {
+          "decision": "Phase 1 is scratch org + demo data only — no real migration",
+          "rationale": "User confirmed; demo/PoC context",
+          "rejected_alternatives": []
+        },
+        {
+          "decision": "Agent surface is internal Salesforce app (Lightning / Agent Studio)",
+          "rationale": "User confirmed",
+          "rejected_alternatives": ["Slack", "Experience Cloud"]
+        }
+      ],
+      "open_threads": [
+        "Phase 2 scope undefined",
+        "License model / seat count not confirmed",
+        "Future agent channels (Slack, mobile) not scoped",
+        "knowledge/ empty — client-specific grounding missing",
+        "Match duration/end-time field not specified — blocker for E03 overlap detection (G0301)",
+        "Confirmation gate mechanism undefined — in-conversation confirm vs. UI button (G0201)",
+        "Demo environment owner not confirmed (G0402)",
+        "Demo reset/repeatability mechanism not defined (G0403)",
+        "Scratch org expiry policy not decided (G0401)"
+      ],
+      "next_steps": [
+        "Run roadmap skill to phase and sequence the 4 epics",
+        "Run backlog skill when a delivery team is ready to take over",
+        "Wire project to GitHub repo: https://github.com/p-apac-in-mock-thindi-startsports-mo/mock-startsports-match-ops-thindi"
+      ]
+    }
+  ],
+  "preferences": {
+    "terminology": {
+      "Organiser": "The user persona who interacts with the Agentforce agent to view matches and assign crew",
+      "Admin": "The user persona who manages master data (teams, stadiums, staff)",
+      "Match Assignment": "The junction object linking a Staff Member to a Match for a specific role",
+      "Set": "The final confirmed status of a Match once minimum crew thresholds are met",
+      "Staffing": "The in-progress status of a Match while crew is being assigned"
+    }
+  },
+  "decision_log": [
+    {
+      "id": "D005",
+      "date": "2026-11-03",
+      "area": "architecture",
+      "decision": "Apex @InvocableMethod per action (compound-per-action pattern) over Flow for scheduling logic",
+      "rationale": "Flow cannot perform reliable datetime overlap arithmetic across records; Apex gives testable, single-responsibility classes per action",
+      "rejected": ["Single god-class Apex", "Flow-based scheduling"]
+    },
+    {
+      "id": "D006",
+      "date": "2026-11-03",
+      "area": "data-model",
+      "decision": "Master-Detail relationship from Match_Assignment to Match (not Lookup)",
+      "rationale": "Cascade-delete semantics — assignments are owned by and deleted with their Match",
+      "rejected": ["Lookup relationship"]
+    },
+    {
+      "id": "D007",
+      "date": "2026-11-03",
+      "area": "architecture",
+      "decision": "Crew thresholds hardcoded as Apex constants for Phase 1",
+      "rationale": "Sufficient for demo; Custom Metadata is the Phase 2 upgrade path if configurable thresholds are required",
+      "rejected": ["Custom Metadata (Phase 1 over-engineering)"]
+    },
+    {
+      "id": "D001",
+      "date": "2026-11-02",
+      "decision": "Crew minimums are fixed (4 ground staff, 2 commentators, 3 camera operators) — same for all stadiums",
+      "source": "brief.md (design decisions table, row 1)"
+    },
+    {
+      "id": "D002",
+      "date": "2026-11-02",
+      "decision": "One role per person per match — no dual-role assignments",
+      "source": "brief.md (design decisions table, row 2)"
+    },
+    {
+      "id": "D003",
+      "date": "2026-11-02",
+      "decision": "If no staff available for a role: agent alerts and stops, no auto-reassignment",
+      "source": "brief.md (design decisions table, row 3)"
+    },
+    {
+      "id": "D004",
+      "date": "2026-11-02",
+      "decision": "No backup/reserve concept in Phase 1 — all assignments are active crew",
+      "source": "brief.md (design decisions table, row 4)"
+    }
+  ]
 }
