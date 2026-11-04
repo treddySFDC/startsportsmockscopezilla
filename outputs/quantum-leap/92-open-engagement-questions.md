@@ -1,0 +1,146 @@
+# Open Engagement Questions — StartSports Match Operations
+
+> Reference role: cross-phase or engagement-level open questions only. Per-phase questions live **inside** the phase brief (under "Plan-mode questions" or "Build-mode questions"). This file exists to hold what doesn't belong to a single phase.
+
+If this list is empty for an engagement, no file is generated — its absence means "no cross-phase questions remain."
+
+- [ ] **G0101 — Ambiguity**: Match time window definition.
+  - Notes: RESOLVED: Match has two datetime fields — Start_DateTime__c and End_DateTime__c. Overlap detection uses both fields for staff double-booking and stadium conflict checks.
+- [ ] **G0102 — Logical Gap**: Match start datetime field missing.
+  - Notes: RESOLVED: Start_DateTime__c added to Match object (part of G0101 resolution).
+- [ ] **G0103 — Logical Gap**: Role field design — on Staff Member or Match Assignment?
+  - Notes: RESOLVED: Role__c is a permanent classification on Staff Member (Ground Staff / Commentator / Camera Operator). Match Assignment inherits the role from the Staff Member at assignment time.
+- [ ] **G0104 — Ambiguity**: Role on Match Assignment — derived or independent?
+  - Notes: RESOLVED: Role on Assignment is derived from Staff Member Role__c at assignment time. Organiser cannot assign a staff member to a role different from their classification.
+- [ ] **G0105 — Missing Requirement**: Staff Member availability flag missing.
+  - Notes: RESOLVED: Add Is_Active__c checkbox to Staff Member. Agent only considers active staff (Is_Active__c = true) when checking availability.
+- [ ] **G0106 — Missing Requirement**: Stadium object fields are not defined in the epic. Beyond the object name, no fields (Name, City, Capacity) are specified.
+  - Notes: Organiser-facing match display and any future extensions have no anchor. An empty object schema is a delivery risk even for a PoC.
+- [ ] **G0107 — Missing Requirement**: Team object fields are not specified. No field definitions given beyond the object name.
+  - Notes: Match records must reference Teams. Without a relationship field, the demo data model is incomplete and the agent has no team context when discussing a match.
+- [ ] **G0108 — Logical Gap**: Match-to-Team relationship unspecified.
+  - Notes: RESOLVED: Two lookup fields on Match — Home_Team__c and Away_Team__c — both pointing to Team object. Simple, matches the brief Team A / Team B language.
+- [ ] **G0109 — Ambiguity**: Match Status transition rules undefined.
+  - Notes: RESOLVED: Set is a final state. A validation rule blocks any further Assignment changes on a Match with Status = Set. Match cannot revert from Set.
+- [ ] **G0110 — Potential Risk**: All five custom objects are in a scratch org with no namespace. If the project moves to a managed package or persistent org, API names will conflict.
+  - Notes: Low risk for demo PoC short-term. Decision to omit namespace should be explicitly logged for stakeholders.
+- [ ] **G0111 — Potential Risk**: No indexing strategy defined on Start_DateTime__c. SOQL queries for overlap detection across assignments could hit governor limits if seed data grows.
+  - Notes: Low risk at demo scale. Date-range overlap query fields should be noted for custom indexing consideration during field definition.
+- [ ] **G0112 — Assumption**: Standard Salesforce OWD (Public Read/Write or Private) assumed sufficient with no custom sharing rules, given single Organiser + Admin personas.
+  - Notes: If multiple Organisers are added, record visibility becomes relevant. Sharing model should be documented for repeatable scratch org setup.
+- [ ] **G0113 — Governance**: No record ownership or data stewardship model defined for the five custom objects. Unclear whether Admin or Organiser is the record owner.
+  - Notes: For a demo, low risk. But automation triggered by record ownership will behave unpredictably if ownership is not standardised. A brief ownership convention should be stated.
+- [ ] **G0114 — Missing Requirement**: No page layouts, compact layouts, or list views specified for any of the five objects. Admin manages master data through default Salesforce UI.
+  - Notes: Default layouts surface all fields including system fields, creating a poor demo experience. Match and Match Assignment at minimum need curated layouts before stakeholder demonstration.
+- [ ] **G0115 — Missing Requirement**: No unique constraint on Match Assignment for D002 at database layer.
+  - Notes: RESOLVED: Add a duplicate rule / unique compound constraint on (Match__c, Staff_Member__c) on Match Assignment. One Staff Member record per Match, full stop.
+- [ ] **G0201 — Ambiguity**: Confirmation gate mechanism.
+  - Notes: RESOLVED: Assign Staff (Action 4) writes the assignment to the database immediately after the agent asks for confirmation and the Organiser says yes — in a single agent turn. No staging. Confirm Match (Action 5) is a separate threshold check + status update, not the point of assignment commit.
+- [ ] **G0202 — Missing Requirement**: Scope of Organiser confirmation.
+  - Notes: RESOLVED: Each individual assignment (per staff member) is confirmed in Action 4. Confirm Match (Action 5) is a separate action that checks minimum thresholds and marks the Match as Set.
+- [ ] **G0203 — Logical Gap**: Action 4 vs Action 5 commit semantics.
+  - Notes: RESOLVED: Action 4 (Assign Staff) commits each assignment immediately after per-assignment confirmation. Action 5 (Confirm Match) checks crew thresholds and transitions Match status to Set.
+- [ ] **G0204 — Ambiguity**: No-staff halt scope — full halt or role-level flag?
+  - Notes: RESOLVED: Agent halts the entire assignment flow when no staff is available for a required role. Alerts the Organiser with the specific role and stops. Organiser must resolve the gap before proceeding.
+- [ ] **G0205 — Capability Gap**: No out-of-scope query handling is specified. There is no guardrail topic, fallback response, or explicit instruction defined for queries outside the five actions (e.g. player statistics, ticket sales, HR queries).
+  - Notes: Without explicit out-of-scope instructions, the agent may hallucinate responses or route to unintended actions in a demo context, undermining trust.
+- [ ] **G0206 — Potential Risk**: Hallucination risk on staff names and availability: if the invocable for Check Staff Availability returns an empty result or an error, the agent may fabricate available staff rather than surface the empty state. No instructions defined for how the agent handles null or error payloads from invocables.
+  - Notes: In a demo this would be immediately visible and damaging. Agent Topic instructions must explicitly state what to say when an action returns no results or fails.
+- [ ] **G0207 — Missing Requirement**: Agent persona guardrails are mentioned but not detailed: no tone, vocabulary constraints, prohibited disclosures, or response-length guidelines are defined for the Organiser-facing persona.
+  - Notes: Without guardrail text in the Topic system prompt, the agent will surface internal field names, IDs, or raw JSON to the Organiser.
+- [ ] **G0208 — Ambiguity**: The five agent actions are named but their input/output contracts are not defined (e.g. does Get Upcoming Matches accept a date range, a team filter, or a match ID? Does Assign Staff accept a staff record ID or a name string?).
+  - Notes: If E02 configuration begins before E03 invocable contracts are finalised, action parameters in Agent Studio will need revision, causing rework.
+- [ ] **G0209 — Missing Requirement**: Agent access — Organiser only or Admin too?
+  - Notes: RESOLVED: Organiser only. Admin uses standard Salesforce UI for master data. A dedicated permission set / Agent User profile is required for the Organiser persona.
+- [ ] **G0210 — Assumption**: It is assumed that Agent Studio is available and licensed in the scratch org configuration. Agentforce requires specific org settings, feature flags, and Einstein platform licences not always enabled by default in scratch orgs.
+  - Notes: If the scratch org definition does not include Agentforce features, the entire epic cannot be tested. scratch-def.json must be verified before E02 work begins.
+- [ ] **G0211 — Potential Risk**: Unassign action undefined.
+  - Notes: RESOLVED: Unassign is out of scope for Phase 1. Agent Topic instructions include an explicit polite refusal for any unassignment request.
+- [ ] **G0212 — Missing Requirement**: Post-confirm conversation behaviour undefined.
+  - Notes: RESOLVED: After delivering the Confirm Match summary, the conversation ends / agent signals done. No further commands accepted on that match in the same session.
+- [ ] **G0213 — Capability Gap**: No error-handling instructions specified for the case where an invocable throws an exception. The agent Topic instructions do not define a fallback utterance, retry guidance, or escalation path.
+  - Notes: Unhandled invocable errors will surface as raw error messages or silent failures to the Organiser, breaking the demo narrative.
+- [ ] **G0214 — Ambiguity**: One Topic (Match Operations) does not clarify whether all five actions are slotted under a single Agentforce Topic or whether distinct Topics are used per action cluster. Agentforce Topic routing behaviour differs from standard LLM function calling and affects how the agent selects actions.
+  - Notes: Misunderstanding Agentforce Topic semantics could lead to actions being unreachable if their descriptions do not match the Topic classifier routing logic.
+- [ ] **G0215 — Potential Risk**: Multi-turn context retention: Agentforce sessions do not automatically persist application state between turns beyond conversation history. If the Organiser closes the session mid-flow (e.g. after checking availability but before assigning), there is no defined behaviour for resuming or discarding partial state.
+  - Notes: For a demo this is a show-stopper scenario if the presenter inadvertently closes the chat pane. Scope must state whether session recovery is in or out of scope for E02.
+- [ ] **G0301 — Ambiguity**: Match overlap definition for conflict detection.
+  - Notes: RESOLVED: Match has Start_DateTime__c and End_DateTime__c. Touching times count as a conflict (start of B <= end of A is a conflict). SOQL overlap predicate: A.Start__c < B.End__c AND A.End__c > B.Start__c, adjusted so touching is also blocked.
+- [ ] **G0302 — Ambiguity**: Overlap boundary — touch or true overlap?
+  - Notes: RESOLVED: Touching counts as a conflict. If Match A ends at 18:00 and Match B starts at 18:00, staff and stadium are still considered blocked.
+- [ ] **G0303 — Missing Requirement**: Stadium conflict scope — whole stadium or sub-venues?
+  - Notes: RESOLVED: Whole stadium is blocked for the duration of a match. One match at a time per stadium. No sub-venue concept in Phase 1.
+- [ ] **G0304 — Logical Gap**: Crew threshold trigger point.
+  - Notes: RESOLVED: Crew threshold check is triggered by the agent Confirm Match action (Action 5). The invocable checks thresholds and, if met, transitions Match status to Set. No automatic trigger on Assignment creation.
+- [ ] **G0305 — Missing Requirement**: Crew minimum scope — per match or per match-day?
+  - Notes: RESOLVED: Per match. Every match independently needs 4 ground staff + 2 commentators + 3 camera operators. No pooling across matches on the same day.
+- [ ] **G0306 — Ambiguity**: Role field cardinality on the Assignment junction object is not defined. Is Role a picklist on Assignment, a lookup to a Role object, or a field on the Staff record itself?
+  - Notes: SOQL for duplicate-role detection and the UI for the agent assignment action both depend on this design choice.
+- [ ] **G0307 — Logical Gap**: One-role-per-person-per-match — unique person or unique person-role?
+  - Notes: RESOLVED: A Staff Member can only appear once on a match, full stop. Unique constraint is on (Match__c, Staff_Member__c) — no two Assignment records for the same staff member on the same match, regardless of role.
+- [ ] **G0308 — Potential Risk**: Double-booking check requires a SOQL query against all Assignment records for overlapping matches. In a bulk context, this query runs per-record and risks hitting governor limits (100 SOQL per transaction).
+  - Notes: Apex trigger bulkification required. A flow calling the invocable per-record in a loop will breach governor limits. Pre-load conflict data into a collection before per-record evaluation.
+- [ ] **G0309 — Potential Risk**: Stadium conflict check requires querying Match records with overlapping time windows filtered by stadium. A non-selective SOQL on these fields may trigger a full table scan at scale.
+  - Notes: Custom indexes on Stadium__c and Start_DateTime__c should be noted during field definition. Low severity for demo scale but worth flagging for future growth.
+- [ ] **G0310 — Missing Requirement**: Error message content and format when the agent alerts and stops (no available staff for a role) is not specified. Should the message name the role, explain why staff are unavailable, and suggest next steps?
+  - Notes: A generic error message breaks the demo narrative. Message template must be defined before the invocable returns a structured fault payload to the agent topic.
+- [ ] **G0311 — Logical Gap**: Partial assignment state on failure.
+  - Notes: RESOLVED: Partial assignments are kept when the agent halts. Match stays in Staffing status. Organiser can return in a later session to assign remaining crew.
+- [ ] **G0312 — Logical Gap**: The order in which business rules are checked is not specified. When multiple rules are violated simultaneously, does the invocable return a single fault or a structured list of all violations?
+  - Notes: Validation sequence affects error message clarity and drives invocable design (single fault vs. compound error list).
+- [ ] **G0313 — Ambiguity**: Who or what initiates the mark Set action? Is it the Organiser explicitly telling the agent, automatic when thresholds are satisfied, or a button in the UI?
+  - Notes: Determines whether threshold logic lives in a validation rule, an agent action invocable, or a screen flow. Each implementation path has different testability and rollback characteristics.
+- [ ] **G0314 — Missing Requirement**: No unit-test coverage strategy is defined for the invocable logic. Apex invocables must have test classes to deploy. Overlap detection test data setup is non-trivial.
+  - Notes: Without a testing plan the deploy step will fail or require last-minute test class authoring. Test class requirements should be part of this epic definition of done.
+- [ ] **G0315 — Potential Risk**: If an invocable throws an unhandled exception (bad SOQL, null field, governor limit breach), the agent may surface a generic error or silently fail. Agentforce error propagation from invocables is not well documented.
+  - Notes: Fault handling must be explicit: invocable should catch all exceptions and return a structured error output variable rather than throwing. Critical for live demo context.
+- [ ] **G0316 — Capability Gap**: Native Agentforce agent actions do not support transactional rollback. If scheduling logic is split across multiple invocable calls, there is no built-in mechanism to undo a prior assignment if a later rule fails.
+  - Notes: The entire scheduling validation for a single assignment should be performed atomically in a single Apex invocable. Splitting across multiple actions removes all-or-nothing assignment semantics.
+- [ ] **G0317 — Missing Requirement**: The epic does not specify whether business rule invocables are a single compound action or separate granular actions (one per rule). The agent topic design depends on this.
+  - Notes: A single compound invocable is safer for atomicity but harder to reuse. Separate invocables are reusable but require the topic orchestrator to call them in sequence and handle partial failures.
+- [ ] **G0318 — Assumption**: Staff availability is determined solely by the absence of an Assignment record on an overlapping Match — no separate staff availability calendar, leave record, or blocked-date concept exists.
+  - Notes: If staff can be unavailable for reasons other than existing assignments, the double-booking check is insufficient. Must be confirmed as in-scope for Phase 1.
+- [ ] **G0319 — Assumption**: All Phase 1 assignments are created through the agent (not direct record creation in Salesforce UI or data import). If assignments can be created outside the agent, business rules may be bypassed.
+  - Notes: If bypass prevention is required, the invocable logic must be wired to a trigger on the Assignment object, not only to the agent action.
+- [ ] **G0320 — Potential Risk**: Scratch org is ephemeral. If missing or failing test classes block deployment to a fresh org, this epic — the highest-complexity artifact — blocks the entire demo.
+  - Notes: Continuous deployment validation (running Apex tests on each push) should be confirmed as part of the dev workflow.
+- [ ] **G0321 — Logical Gap**: Agent never removes assignments without being asked is a behavioral constraint on the agent topic, not data-layer enforcement. Nothing prevents a direct DML delete on an Assignment record outside the agent.
+  - Notes: For demo purposes agent-layer enforcement may be sufficient. For a production-ready pattern, a deletion-blocking trigger is expected. Decision affects scope of this epic.
+- [ ] **G0322 — Missing Requirement**: Multi-session staffing — can Organiser return to add more crew?
+  - Notes: RESOLVED: Yes. Organiser can assign crew across multiple agent sessions as long as the Match is not Set. Once Set, no further assignments are allowed.
+- [ ] **G0323 — Ambiguity**: Crew thresholds — hardcoded or Admin-configurable?
+  - Notes: RESOLVED: Hardcoded constants for Phase 1, stored in Apex constants or Custom Metadata. Admin-configurable thresholds are explicitly out of scope for Phase 1.
+- [ ] **G0401 — Missing Requirement**: Scratch org expiry policy.
+  - Notes: RESOLVED: Use a persistent Developer Edition org instead of a scratch org. No expiry concern, no DevHub required. Simplest approach for a stable demo asset.
+- [ ] **G0402 — Missing Requirement**: Demo environment owner and DevHub credentials.
+  - Notes: RESOLVED: No DevHub needed (persistent DE org decision). Demo owner is whoever runs the deploy — TBD by the build team.
+- [ ] **G0403 — Missing Requirement**: Demo reset mechanism.
+  - Notes: RESOLVED: A reset script (Apex anonymous) will delete all Match Assignment records and reset all Match statuses back to Draft/Staffing. Run before each demo to restore a clean state.
+- [ ] **G0404 — Ambiguity**: Deployment tooling and pipeline are not specified. Unclear whether deployment uses SFDX source push, Salesforce CLI metadata deploy, a CI/CD pipeline, or a manual process. No project-scratch-def.json or deployment runbook referenced.
+  - Notes: Without a repeatable deployment script, re-provisioning is ad hoc and error-prone. A new team member cannot independently stand up the demo org.
+- [ ] **G0405 — Ambiguity**: Seed data design rules for staff availability are not defined. For demo step 2 (Who is available for Match 3?), staff must include eligible candidates and exclude some, to make the agent response non-trivial.
+  - Notes: If all staff are available for every match, the demo response is uninteresting. If availability logic is misconfigured in seed data, the agent may return zero results, undermining the demo narrative.
+- [ ] **G0406 — Ambiguity**: Number of staff records per role and mix of available vs. unavailable staff for a compelling demo is not specified. Roughly 10 staff per role is cited but no specification of how many should be unavailable and for what reason.
+  - Notes: Without this specification, seed data may trivialise the availability query or break it entirely.
+- [ ] **G0407 — Ambiguity**: Match dataset composition for seed data.
+  - Notes: RESOLVED: 5 matches, 3 stadiums, 6 staff per role. Some staff pre-assigned to matches (creating realistic conflicts) so the availability check in demo step 2 returns a non-trivial result.
+- [ ] **G0408 — Logical Gap**: Seed data staff names must match demo script.
+  - Notes: RESOLVED: Demo script will be written against the seed data (not the other way around). Seed data author names the staff records; demo presenter script is finalised after seed data is built.
+- [ ] **G0409 — Potential Risk**: No DevHub org or Connected App configuration documented. Scratch org creation requires an authorised DevHub. If it is a personal org rather than a shared team asset, the scratch org cannot be re-created by anyone else.
+  - Notes: Bus-factor-1 risk for the entire demo environment. A shared service account or team DevHub should be specified.
+- [ ] **G0410 — Potential Risk**: No smoke-test or post-deploy verification step defined. If the agent is misconfigured after a fresh provision, it may silently fail during the demo without prior indication.
+  - Notes: A post-deploy validation checklist or automated health-check script is needed to confirm the agent responds correctly to at least one test utterance before a client-facing session.
+- [ ] **G0411 — Assumption**: All custom objects, fields, and agent configuration are assumed to be version-controllable as SFDX source metadata and fully re-deployable to a fresh scratch org without manual post-deploy steps. Not validated against actual Agentforce metadata types.
+  - Notes: Some Agentforce configuration may require post-deploy activation steps not captured in source metadata. If unverified, a fresh provision may produce a non-functional agent.
+- [ ] **G0412 — Assumption**: Seed data is assumed loadable via script (Apex anonymous, data import, or SFDX data commands) and record relationships are assumed resolvable by name rather than ID across fresh org provisions.
+  - Notes: Salesforce record IDs are not portable across org provisions. If the demo script or agent actions reference records by ID rather than name / external ID, the seed load must assign consistent external IDs.
+- [ ] **G0413 — Capability Gap**: No acceptance criteria exist for the demo environment epic. No definition of done that confirms the provisioned org supports all four demo steps end-to-end before a session is declared ready.
+  - Notes: Without an environment readiness checklist, teams may declare the environment ready when it is only partially functional, discovering failures during a live client demo.
+
+---
+
+## How to use this file
+
+- Walk it once at engagement-start, before planning Phase 1.
+- For each item, surface to the user; capture the answer; append `**Resolved:** <answer>` underneath.
+- A question that turns out to be phase-specific should be moved into that phase's brief (Plan-mode or Build-mode questions section) and removed from this file.

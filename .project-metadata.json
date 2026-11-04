@@ -13,7 +13,7 @@
     "strategy": "not-started",
     "requirements": "complete",
     "design": "complete",
-    "roadmap": "not-started",
+    "roadmap": "complete",
     "efficiency": "not-started",
     "estimate": "not-started",
     "commercials": "not-started",
@@ -21,7 +21,7 @@
     "narratives": "not-started",
     "export": "not-started",
     "backlog": "not-started",
-    "quantum-leap": "not-started",
+    "quantum-leap": "complete",
     "slides": "not-started",
     "rfp": "not-started",
     "illuminate": "not-started",
@@ -30,6 +30,13 @@
     "help": "not-started",
     "contribute": "not-started"
   },
+  "target_org": {
+    "name": "astroNewOrgOne",
+    "type": "developer-edition",
+    "state": "greenfield",
+    "build_allowed": true
+  },
+  "quantum_leap_blueprint": "Custom",
   "timeline": {
     "client_target": null,
     "user_commitment": null

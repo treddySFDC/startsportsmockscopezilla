@@ -147,8 +147,10 @@
       <span class="badge badge-done">✓ Discover</span>
       <span class="badge badge-done">✓ Requirements</span>
       <span class="badge badge-done">✓ Design</span>
+      <span class="badge badge-done">✓ Roadmap</span>
+      <span class="badge badge-done">✓ Quantum Leap</span>
     </h1>
-    <p>Agentforce agent for tournament crew scheduling · Phase 1 demo · Updated 3 Nov 2026</p>
+    <p>Agentforce agent for tournament crew scheduling · Phase 1 demo · Updated 4 Nov 2026</p>
   </div>
 
   <div class="stat-row">
@@ -158,6 +160,7 @@
     <div class="stat-tile good"><div class="value">29</div><div class="label">Gaps resolved</div></div>
     <div class="stat-tile green"><div class="value">5</div><div class="label">Agent actions</div></div>
     <div class="stat-tile warn"><div class="value">3</div><div class="label">Apex classes</div></div>
+    <div class="stat-tile violet"><div class="value">6</div><div class="label">Build intents</div></div>
   </div>
 
   <div class="section">
@@ -168,8 +171,9 @@
         <div class="flow-step"><div class="step-node done">✓</div><div class="step-label">Discover</div><div class="step-sublabel">Brief ingested</div></div>
         <div class="flow-step"><div class="step-node done">✓</div><div class="step-label">Requirements</div><div class="step-sublabel">4 epics · 66 gaps</div></div>
         <div class="flow-step"><div class="step-node done">✓</div><div class="step-label">Design</div><div class="step-sublabel">Architecture + estimates</div></div>
-        <div class="flow-step"><div class="step-node active">→</div><div class="step-label">Roadmap</div><div class="step-sublabel">Phase &amp; sequence</div></div>
-        <div class="flow-step"><div class="step-node future">○</div><div class="step-label">Build</div><div class="step-sublabel">Apex · Agent</div></div>
+        <div class="flow-step"><div class="step-node done">✓</div><div class="step-label">Roadmap</div><div class="step-sublabel">3 phases sequenced</div></div>
+        <div class="flow-step"><div class="step-node done">✓</div><div class="step-label">Quantum Leap</div><div class="step-sublabel">6 intents · bundle ready</div></div>
+        <div class="flow-step"><div class="step-node active">→</div><div class="step-label">Build</div><div class="step-sublabel">Apex · Agent</div></div>
         <div class="flow-step"><div class="step-node future">○</div><div class="step-label">Demo</div><div class="step-sublabel">4-step flow</div></div>
       </div>
     </div>
@@ -353,6 +357,43 @@
     </div>
   </div>
 
+  <!-- PHASE 4: ROADMAP -->
+  <div class="section">
+    <div class="section-header">
+      <span class="phase-pill" style="background:color-mix(in srgb,var(--status-good) 15%,transparent);color:var(--status-good);">Phase 4</span>
+      <span class="section-title">Roadmap — Build Sequence</span>
+    </div>
+    <p style="font-size:14px;color:var(--text-secondary);margin-bottom:16px;">
+      3 phases in dependency order. No timeline commitment — this is a demo/PoC. Critical path: E01 → E03 → E02 → E04 (every epic gates the next).
+    </p>
+    <div class="card-grid">
+      <div class="card" style="border-left:3px solid var(--series-1);">
+        <h3>Phase 1 — Foundation</h3>
+        <ul>
+          <li><span class="dot dot-blue"></span><strong>E01</strong> — Deploy all 5 custom objects, relationships, picklists, validation rules, permission sets</li>
+          <li><span class="dot dot-blue"></span>Locks the schema everything else depends on</li>
+          <li><span class="dot dot-blue"></span>Freeze schema before Phase 2 starts</li>
+        </ul>
+      </div>
+      <div class="card" style="border-left:3px solid var(--series-7);">
+        <h3>Phase 2 — Scheduling Logic &amp; Agent</h3>
+        <ul>
+          <li><span class="dot dot-violet"></span><strong>E03 first</strong> — 3 Apex classes (Apex must exist before agent Actions wire to them)</li>
+          <li><span class="dot dot-violet"></span><strong>E02 after</strong> — Agentforce topic, 5 actions, confirmation gate, guardrails</li>
+          <li><span class="dot dot-violet"></span>Iterative prompt tuning required before done</li>
+        </ul>
+      </div>
+      <div class="card" style="border-left:3px solid var(--series-3);">
+        <h3>Phase 3 — Demo Ready</h3>
+        <ul>
+          <li><span class="dot dot-green"></span><strong>E04</strong> — SFDX deploy to DE org, seed 18 staff + 5 matches + 3 pre-seeded assignments</li>
+          <li><span class="dot dot-green"></span>Reset script verified: clears assignments, resets Match statuses to Draft</li>
+          <li><span class="dot dot-green"></span>Demo owner rehearses 4-step flow end-to-end</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
   <!-- All decisions across all phases -->
   <div class="section">
     <div class="section-header">
@@ -393,18 +434,61 @@
     </div>
   </div>
 
+  <!-- PHASE 5: QUANTUM LEAP -->
+  <div class="section">
+    <div class="section-header">
+      <span class="phase-pill" style="background:color-mix(in srgb,var(--series-1) 15%,transparent);color:var(--series-1);">Phase 5</span>
+      <span class="section-title">Quantum Leap — Build Handoff Bundle</span>
+    </div>
+    <p style="font-size:14px;color:var(--text-secondary);margin-bottom:16px;">
+      6 per-capability build specs (intents) and 3 per-phase orchestration briefs — ready for Claude Code or Meshmesh to consume and build against in <strong>astroNewOrgOne</strong> (greenfield DE org).
+    </p>
+    <div class="card-grid" style="margin-bottom:16px;">
+      <div class="card" style="border-left:3px solid var(--series-1);">
+        <h3>Phase 1 intents (1)</h3>
+        <ul>
+          <li><span class="dot dot-blue"></span><strong>INT-001</strong> — 5-object data model, relationships, validation rule, duplicate rule, 2 permission sets</li>
+        </ul>
+      </div>
+      <div class="card" style="border-left:3px solid var(--series-7);">
+        <h3>Phase 2 intents (4)</h3>
+        <ul>
+          <li><span class="dot dot-violet"></span><strong>INT-002</strong> — StaffAvailabilityChecker (read-only, 5 test scenarios)</li>
+          <li><span class="dot dot-violet"></span><strong>INT-003</strong> — StaffAssigner (write + status transition, 4 scenarios)</li>
+          <li><span class="dot dot-violet"></span><strong>INT-004</strong> — MatchConfirmer (threshold check + Set lock, 4 scenarios)</li>
+          <li><span class="dot dot-violet"></span><strong>INT-005</strong> — Agentforce agent: topic + 5 actions + confirmation gate</li>
+        </ul>
+      </div>
+      <div class="card" style="border-left:3px solid var(--series-3);">
+        <h3>Phase 3 intents (1)</h3>
+        <ul>
+          <li><span class="dot dot-green"></span><strong>INT-006</strong> — SFDX deploy, seed data (18 staff, 5 matches), permission set assignment, reset script</li>
+        </ul>
+      </div>
+    </div>
+    <div class="decision-list" style="margin-bottom:12px;">
+      <div class="decision-header"><span>Bundle file</span><span>Contents</span></div>
+      <div class="decision-item"><div class="decision-question"><code style="font-size:12px">00-agent-brief.md</code></div><div class="decision-answer">Paste-into-chat runbook for the build agent</div></div>
+      <div class="decision-item"><div class="decision-question"><code style="font-size:12px">01-engagement-intent.md</code></div><div class="decision-answer">Structured intent + strategic context</div></div>
+      <div class="decision-item"><div class="decision-question"><code style="font-size:12px">03-glossary-and-naming.md</code></div><div class="decision-answer">Authoritative names — build agent never invents</div></div>
+      <div class="decision-item"><div class="decision-question"><code style="font-size:12px">04-org-rules.md</code></div><div class="decision-answer">Greenfield DE org rules for astroNewOrgOne</div></div>
+      <div class="decision-item"><div class="decision-question"><code style="font-size:12px">10-phase-{1,2,3}.md</code></div><div class="decision-answer">Per-phase orchestration: pre-decided, plan-mode questions, acceptance</div></div>
+      <div class="decision-item"><div class="decision-question"><code style="font-size:12px">11-intents-{1,2,3}.md</code></div><div class="decision-answer">Load-bearing build specs: outcome, build target, guardrails, acceptance</div></div>
+    </div>
+    <p style="font-size:12px;color:var(--text-muted);">2 open questions before build: demo match dates (INT-006) and GetUpcomingMatchesAction date filter (INT-005).</p>
+  </div>
+
   <!-- What's next -->
   <div class="section">
     <div class="section-header"><span class="section-title">What's Next</span></div>
     <div class="card-grid">
       <div class="card" style="border-left:3px solid var(--series-1);">
-        <h3>Roadmap (recommended next)</h3>
+        <h3>Start the build (recommended next)</h3>
         <ul>
-          <li><span class="dot dot-blue"></span>Phase and sequence the 4 epics</li>
-          <li><span class="dot dot-blue"></span>Benchmark-based timeline range</li>
-          <li><span class="dot dot-blue"></span>Epic dependencies and ordering</li>
+          <li><span class="dot dot-blue"></span>In the build repo: run <code style="font-size:12px">/ql-init-engagement</code></li>
+          <li><span class="dot dot-blue"></span>Then: <code style="font-size:12px">/ql-ingest-scopezilla</code> to pull the bundle</li>
+          <li><span class="dot dot-blue"></span>Then: <code style="font-size:12px">/ql-start-intent</code> to build intent by intent</li>
         </ul>
-        <p style="font-size:12px;color:var(--text-muted);margin-top:10px;">Say: <strong>"build the roadmap"</strong></p>
       </div>
       <div class="card" style="border-left:3px solid var(--series-7);">
         <h3>Backlog (when build team is ready)</h3>

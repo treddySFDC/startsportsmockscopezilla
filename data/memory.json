@@ -40,6 +40,26 @@
         "Run backlog skill when a delivery team is ready to take over",
         "Wire project to GitHub repo: https://github.com/p-apac-in-mock-thindi-startsports-mo/mock-startsports-match-ops-thindi"
       ]
+    },
+    {
+      "date": "2026-11-04",
+      "skills_used": ["roadmap", "quantum-leap"],
+      "summary": "Created 3-phase sequence-only roadmap (E01 → E03+E02 → E04). Ran quantum-leap: generated 6 intents (INT-001 through INT-006) covering data model, 3 Apex classes, Agentforce agent config, and deploy/seed. Bundle rendered to outputs/quantum-leap/ (16 files). Target org: astroNewOrgOne (greenfield DE). Build tool: Claude Code.",
+      "friction": [],
+      "decisions": [
+        {"decision": "All 3 phases included in bundle (not Phase 1 only)", "rationale": "User selected all 3 phases"},
+        {"decision": "Claude Code as build tool", "rationale": "User confirmed; no Meshmesh blueprint needed"}
+      ],
+      "open_threads": [
+        "Q-001: GetUpcomingMatchesAction — filter by date range or all non-Set matches? (INT-005)",
+        "Q-002: Specific demo match datetimes needed before seeding (INT-006)",
+        "Demo user alias for permission set assignment not yet confirmed"
+      ],
+      "next_steps": [
+        "In build repo ~/Documents/mock-startsports-match-ops-thindi: run /ql-init-engagement then /ql-ingest-scopezilla",
+        "Answer Q-001 and Q-002 before Phase 3 build starts",
+        "Run /ql-start-intent to begin building intent by intent"
+      ]
     }
   ],
   "preferences": {
@@ -52,6 +72,14 @@
     }
   },
   "decision_log": [
+    {
+      "id": "D008",
+      "date": "2026-11-04",
+      "area": "roadmap",
+      "decision": "3-phase sequence-only roadmap: Phase 1 (E01 Foundation) → Phase 2 (E03+E02 Logic+Agent) → Phase 3 (E04 Demo Ready). No timeline commitment — PoC context.",
+      "rationale": "Dependencies require E01 before E03, E03 before E02, all before E04. Sequence-only chosen as this is a demo/PoC with no fixed deadline.",
+      "rejected": ["Single-phase all-epics (hides dependency order)", "Timeline commitment (no client deadline to commit to)"]
+    },
     {
       "id": "D005",
       "date": "2026-11-03",

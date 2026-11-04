@@ -1,0 +1,30 @@
+[
+  {
+    "phase_number": 1,
+    "phase_name": "Foundation",
+    "objectives": "Deploy all 5 custom objects, field definitions, object relationships, status and role picklists, validation rule (Set is final), duplicate rule (one person per match), and both permission sets. This phase establishes the complete data model every subsequent phase depends on.",
+    "epics_included": "E01",
+    "success_criteria": "All 5 custom objects deployed to the target org; Match lifecycle enforced (Draft → Staffing → Set); validation rule blocks edits on Set matches; duplicate rule blocks double-assignment on (Match, Staff Member); Match_Organiser and Match_Admin permission sets created.",
+    "dependencies": "None — this is the build starting point.",
+    "risks": "Field schema changes in this phase cascade to E03 (SOQL) and E02 (agent action inputs). Lock the schema before moving to Phase 2.",
+    "kb_sources": []
+  },
+  {
+    "phase_number": 2,
+    "phase_name": "Scheduling Logic & Agent",
+    "objectives": "Build the 3 Apex @InvocableMethod classes (StaffAvailabilityChecker, StaffAssigner, MatchConfirmer) and configure the Agentforce agent (Match_Operations topic, 5 custom actions, confirmation gate, out-of-scope guardrails). E03 Apex must exist before E02 agent Actions can reference it.",
+    "epics_included": "E03,E02",
+    "success_criteria": "All 3 Apex classes pass at >75% test coverage including touching-times and stadium conflict scenarios; agent correctly routes all 5 action types; confirmation gate fires before every Assign Staff call; agent declines out-of-scope requests politely.",
+    "dependencies": "Phase 1 complete — Apex queries the custom objects; agent actions call Apex invocables.",
+    "risks": "Agent instruction quality requires iteration — budget time for prompt tuning with realistic Organiser test prompts before declaring E02 complete. Overlap detection bug silently breaks the demo — comprehensive Apex test coverage is the mitigation."
+  },
+  {
+    "phase_number": 3,
+    "phase_name": "Demo Ready",
+    "objectives": "SFDX deploy to persistent Developer Edition org, seed demo dataset (5 teams, 3 stadiums, 18 staff, 5 matches with pre-seeded assignments), assign permission sets to demo user, run end-to-end smoke test, verify reset script.",
+    "epics_included": "E04",
+    "success_criteria": "Full 4-step demo flow completes without errors; reset script clears all assignments and resets Match statuses to Draft in under 5 seconds; demo owner has rehearsed the flow at least once; post-deploy smoke test checklist signed off.",
+    "dependencies": "Phases 1 and 2 complete — all custom objects, Apex classes, and agent configuration must be deployed before seeding.",
+    "risks": "Deployment sequence matters — objects must deploy before agent config, agent config before seed data. First-deploy dry run (`sf project deploy start --dry-run`) recommended. Demo owner must know the reset procedure before each session."
+  }
+]
